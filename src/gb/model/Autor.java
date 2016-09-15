@@ -6,7 +6,8 @@ public class Autor {
 	private String nome;
 	private String sobrenome;
 	private String info;
-
+	private String nomeCompleto;
+	
 	public Autor() {
 		super();
 	}
@@ -25,6 +26,8 @@ public class Autor {
 
 	public void setNome(String nome) {
 		this.nome = nome;
+		if (nome != null && sobrenome != null)
+			nomeCompleto = sobrenome.toUpperCase()+", "+nome;
 	}
 
 	public String getSobrenome() {
@@ -33,6 +36,8 @@ public class Autor {
 
 	public void setSobrenome(String sobrenome) {
 		this.sobrenome = sobrenome;
+		if (nome != null && sobrenome != null)
+			nomeCompleto = sobrenome.toUpperCase()+", "+nome;
 	}
 
 	public String getInfo() {
@@ -41,6 +46,10 @@ public class Autor {
 
 	public void setInfo(String info) {
 		this.info = info;
+	}
+
+	public String getNomeCompleto() {
+		return nomeCompleto;
 	}
 
 }

@@ -13,7 +13,7 @@ public class Livro {
 	private String resumo;
 	private Editora editora;
 	private String edicao;
-	private Integer volume;
+	private String volume;
 	private Integer numPaginas;
 	private Assunto assunto;
 	private LocalDate dataPublicacao;
@@ -21,10 +21,12 @@ public class Livro {
 	
 	private List<Autor> autores = new ArrayList<>();
 	private List<Categoria> categorias = new ArrayList<>();
+	private List<Exemplar> exemplares = new ArrayList<>();
+	private int numExemplares = 0;
 	
 	private boolean atualizaAutores = false;
 	private boolean atualizaCategorias = false;
-
+	
 	public Livro() {
 		super();
 	}
@@ -85,11 +87,11 @@ public class Livro {
 		this.edicao = edicao;
 	}
 
-	public Integer getVolume() {
+	public String getVolume() {
 		return volume;
 	}
 
-	public void setVolume(Integer volume) {
+	public void setVolume(String volume) {
 		this.volume = volume;
 	}
 
@@ -178,5 +180,24 @@ public class Livro {
 	public boolean atualizaCategorias(){
 		return atualizaCategorias;
 	}
+
+	public int getNumExemplares() {
+		return numExemplares;
+	}
+
+	public void setNumExemplares(int numExemplares) {
+		this.numExemplares = numExemplares;
+	}
+
+	public List<Exemplar> getExemplares() {
+		return exemplares;
+	}
+
+	public void setExemplares(List<Exemplar> exemplares) {
+		this.exemplares = exemplares;
+	}
 	
+	public String toString(){
+		return id+" - "+titulo;
+	}
 }

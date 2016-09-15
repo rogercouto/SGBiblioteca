@@ -11,6 +11,7 @@ import java.util.List;
 import javax.xml.bind.ValidationException;
 
 import gb.model.Reserva;
+import gb.model.Situacao;
 import gb.model.Usuario;
 import gb.model.data.ConnectionManager;
 import gb.util.TemporalUtil;
@@ -37,10 +38,10 @@ public class ReservaDAO {
 		StringBuilder builder = new StringBuilder();
 		if (reserva.getDataHora() == null)
 			builder.append("Data e hora devem ser informadas");
-		if (reserva.getDataRetirada() == null){
+		if (reserva.getDataHoraLimite() == null){
 			if (builder.length() > 0)
 				builder.append(";\n");
-			builder.append("Data prevista da retirada deve ser informada");
+			builder.append("Data limite da retirada deve ser informada");
 		}
 		if (reserva.getUsuario() == null){
 			if (builder.length() > 0)
@@ -61,15 +62,23 @@ public class ReservaDAO {
 	public void insert(Reserva reserva) throws ValidationException{
 		try {
 			check(reserva);
-			String sql = "INSERT INTO reserva(data_hora, data_retirada, usuario_id, num_registro) VALUES(?, ?, ?, ?)";
+			String sql = "INSERT INTO reserva(data_hora, data_hora_limite, data_hora_retirada,"
+					+ " usuario_id, num_registro) VALUES(?, ?, ?, ?, ?)";
 			PreparedStatement ps = connection.prepareStatement(sql);
 			ps.setString(1, TemporalUtil.getDbDateTime(reserva.getDataHora()));
-			ps.setString(2, TemporalUtil.getDbDate(reserva.getDataRetirada()));
-			ps.setInt(3, reserva.getUsuario().getId());
-			ps.setInt(4, reserva.getExemplar().getNumRegistro());
+			ps.setString(2, TemporalUtil.getDbDateTime(reserva.getDataHoraLimite()));
+			ps.setString(3, TemporalUtil.getDbDateTime(reserva.getDataHoraRetirada()));
+			ps.setInt(4, reserva.getUsuario().getId());
+			ps.setInt(5, reserva.getExemplar().getNumRegistro());
 			ps.executeUpdate();
 			ps.close();
 			reserva.setId(ConnectionManager.getLastInsertId(connection));
+			sql = "UPDATE exemplar SET situacao = ? WHERE num_registro = ?";
+			ps = connection.prepareStatement(sql);
+			ps.setInt(1, Situacao.RESERVADO.getValue());
+			ps.setInt(2, reserva.getExemplar().getNumRegistro());
+			ps.executeUpdate();
+			ps.close();
 		} catch (SQLException e) {
 			throw new RuntimeException(e.getMessage(), e.getCause());
 		}
@@ -80,14 +89,17 @@ public class ReservaDAO {
 			if (reserva.getId() == null)
 				throw new RuntimeException("Id da reserva n\u00e3o pode ser null!");
 			check(reserva);
-			String sql = "UPDATE reserva SET data_hora = ?, data_retirada = ?, usuario_id = ?, num_registro= ?, cancelada = ? WHERE reserva_id = ?";
+			String sql = "UPDATE reserva SET data_hora = ?, data_hora_limite = ?,"
+					+ " data_hora_retirada = ?, usuario_id = ?, num_registro= ?, cancelada = ?"
+					+ " WHERE reserva_id = ?";
 			PreparedStatement ps = connection.prepareStatement(sql);
 			ps.setString(1, TemporalUtil.getDbDateTime(reserva.getDataHora()));
-			ps.setString(2, TemporalUtil.getDbDate(reserva.getDataRetirada()));
-			ps.setInt(3, reserva.getUsuario().getId());
-			ps.setInt(4, reserva.getExemplar().getNumRegistro());
-			ps.setBoolean(5, reserva.isCancelada());
-			ps.setInt(6, reserva.getId());
+			ps.setString(2, TemporalUtil.getDbDateTime(reserva.getDataHoraLimite()));
+			ps.setString(3, TemporalUtil.getDbDateTime(reserva.getDataHoraRetirada()));
+			ps.setInt(4, reserva.getUsuario().getId());
+			ps.setInt(5, reserva.getExemplar().getNumRegistro());
+			ps.setBoolean(6, reserva.isCancelada());
+			ps.setInt(7, reserva.getId());
 			ps.executeUpdate();
 			ps.close();
 		} catch (SQLException e) {
@@ -113,6 +125,12 @@ public class ReservaDAO {
 			ps.setInt(2, reserva.getId());
 			ps.executeUpdate();
 			ps.close();
+			sql = "UPDATE exemplar SET situacao = ? WHERE num_registro = ?";
+			ps = connection.prepareStatement(sql);
+			ps.setInt(1, Situacao.DISPONIVEL.getValue());
+			ps.setInt(2, reserva.getExemplar().getNumRegistro());
+			ps.executeUpdate();
+			ps.close();
 		} catch (SQLException e) {
 			throw new RuntimeException(e.getMessage(), e.getCause());
 		}
@@ -125,6 +143,12 @@ public class ReservaDAO {
 			String sql = "DELETE FROM reserva WHERE reserva_id = ?";
 			PreparedStatement ps = connection.prepareStatement(sql);
 			ps.setInt(1, reserva.getId());
+			ps.executeUpdate();
+			ps.close();
+			sql = "UPDATE exemplar SET situacao = ? WHERE num_registro = ?";
+			ps = connection.prepareStatement(sql);
+			ps.setInt(1, Situacao.DISPONIVEL.getValue());
+			ps.setInt(2, reserva.getExemplar().getNumRegistro());
 			ps.executeUpdate();
 			ps.close();
 		} catch (SQLException e) {
@@ -161,7 +185,8 @@ public class ReservaDAO {
 		Reserva reserva = new Reserva();
 		reserva.setId(result.getInt("r.reserva_id"));
 		reserva.setDataHora(TemporalUtil.getLocalDateTime(result.getString("r.data_hora")));
-		reserva.setDataRetirada(TemporalUtil.getLocalDate(result.getString("r.data_retirada")));
+		reserva.setDataHoraLimite(TemporalUtil.getLocalDateTime(result.getString("r.data_hora_limite")));
+		reserva.setDataHoraRetirada(TemporalUtil.getLocalDateTime(result.getString("r.data_hora_retirada")));
 		reserva.setCancelada(result.getBoolean("r.cancelada"));
 		reserva.setUsuario(UsuarioDAO.getUsuario(result));
 		reserva.setExemplar(ExemplarDAO.getExemplar(result));

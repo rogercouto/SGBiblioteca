@@ -82,6 +82,15 @@ ALTER TABLE exemplar ADD CONSTRAINT fk_livro_exemplar FOREIGN KEY(livro_id) REFE
 ALTER TABLE exemplar ADD CONSTRAINT fk_secao_exemplar FOREIGN KEY(secao_id) REFERENCES secao(secao_id) ON UPDATE CASCADE;
 ALTER TABLE exemplar ADD CONSTRAINT fk_origem_exemplar FOREIGN KEY(origem_id) REFERENCES origem(origem_id) ON UPDATE CASCADE;
 
+CREATE TABLE baixa(
+	baixa_id INTEGER NOT NULL PRIMARY KEY AUTO_INCREMENT,
+	num_registro INTEGER NOT NULL,
+	data_hora TIMESTAMP NOT NULL,
+	causa VARCHAR(50) NOT NULL
+);
+
+ALTER TABLE baixa ADD CONSTRAINT fk_exemplar_baixa FOREIGN KEY(num_registro) REFERENCES exemplar(num_registro) ON UPDATE CASCADE;
+
 CREATE TABLE estado(
 	sigla_estado VARCHAR(3) NOT NULL PRIMARY KEY,
 	nome_estado VARCHAR(100) NOT NULL
@@ -137,7 +146,8 @@ CREATE TABLE reserva(
     num_registro INTEGER NOT NULL,
     usuario_id INTEGER NOT NULL,
     data_hora TIMESTAMP NOT NULL,
-    data_retirada DATE,
+    data_hora_limite DATETIME NOT NULL,
+    data_hora_retirada DATETIME,
     cancelada TINYINT NOT NULL DEFAULT 0,
 );
 

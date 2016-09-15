@@ -72,9 +72,4 @@ public class Emprestimo {
 		this.multaPaga = multaPaga;
 	}
 
-	//TODO
-	public Double calculaMulta(){
-		return null;
-	}
-
 }

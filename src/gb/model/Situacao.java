@@ -2,7 +2,7 @@ package gb.model;
 
 public enum Situacao {
 
-	DISPONIVEL (1), RESERVADO (2), EMPRESTADO (3);
+	DISPONIVEL (1), RESERVADO (2), EMPRESTADO (3), INDISPONIVEL (4);
 
 	private final Integer value;
 	Situacao(Integer value){
@@ -20,6 +20,8 @@ public enum Situacao {
 				return RESERVADO;
 			case 3:
 				return EMPRESTADO;
+			case 4:
+				return INDISPONIVEL;
 		}
 		return null;
 	}

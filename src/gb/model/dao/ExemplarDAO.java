@@ -81,33 +81,25 @@ public class ExemplarDAO {
 			check(exemplar);
 			if (exemplar.getNumRegistro() == null)
 				throw new RuntimeException("Id do exemplar n\u00e3o pode ser null!");
-			String sql = "INSERT INTO exemplar SET num_registro = ?, livro_id = ?, secao_id = ?,"
-					+ " data_aquisicao = ?, origem_id, fixo = ?, situacao = ?"
+			String sql = "UPDATE exemplar SET livro_id = ?, secao_id = ?,"
+					+ " data_aquisicao = ?, origem_id = ?, fixo = ?, situacao = ?"
 					+ " WHERE num_registro = ?";
 			PreparedStatement ps = connection.prepareStatement(sql);
-			ps.setObject(1, exemplar.getNumRegistro());
-			ps.setObject(2, exemplar.getLivro() != null ? exemplar.getLivro().getId() : null);
-			ps.setObject(3, exemplar.getSecao() != null ? exemplar.getSecao().getId() : null);
-			ps.setString(4, exemplar.getDataAquisicao() != null ?
+			ps.setObject(1, exemplar.getLivro() != null ? exemplar.getLivro().getId() : null);
+			ps.setObject(2, exemplar.getSecao() != null ? exemplar.getSecao().getId() : null);
+			ps.setString(3, exemplar.getDataAquisicao() != null ?
 						TemporalUtil.getDbDate(exemplar.getDataAquisicao()) :
 						null
 					);
-			ps.setObject(5, exemplar.getOrigem() != null ? exemplar.getOrigem().getId() : null);
-			ps.setBoolean(6, exemplar.getFixo());
-			ps.setInt(7, exemplar.getSituacao().getValue());
-			ps.setInt(8, exemplar.getNumRegistro());
+			ps.setObject(4, exemplar.getOrigem() != null ? exemplar.getOrigem().getId() : null);
+			ps.setBoolean(5, exemplar.getFixo());
+			ps.setInt(6, exemplar.getSituacao().getValue());
+			ps.setInt(7, exemplar.getNumRegistro());
 			ps.executeUpdate();
 			ps.close();
 		} catch (SQLException e) {
 			throw new RuntimeException(e.getMessage(), e.getCause());
 		}
-	}
-
-	public void save(Exemplar exemplar) throws ValidationException{
-		if (exemplar.getNumRegistro() == null)
-			insert(exemplar);
-		else
-			update(exemplar);
 	}
 
 	public void checkUse(Exemplar exemplar) throws ValidationException{

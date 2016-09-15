@@ -188,7 +188,52 @@ public class AutorDAO{
 		}
 		return list;
 	}
+	//CONCAT(sobrenome, ', ', nome)
 
+	public List<Autor> findList(String nomeCompleto){
+		List<Autor> list = new ArrayList<>();
+		try {
+			String sql = getSelectSql("UPPER(CONCAT(sobrenome, ', ', nome)) LIKE ?");
+			PreparedStatement stmt = connection.prepareStatement(sql);
+			stmt.setString(1, "%"+nomeCompleto.toUpperCase()+"%");
+			ResultSet result = stmt.executeQuery();
+			while (result.next())
+				list.add(getAutor(result));
+			result.close();
+			stmt.close();
+		} catch (SQLException e) {
+			throw new RuntimeException(e.getMessage(), e.getCause());
+		}
+		return list;
+	}
+	
+	private static boolean isIn(Autor autor, List<Autor> list){
+		for (Autor la : list) {
+			if (la.getId() == autor.getId())
+				return true;
+		}
+		return false;
+	}
+	
+	public List<Autor> findList(String nomeCompleto, List<Autor> remList){
+		List<Autor> list = new ArrayList<>();
+		try {
+			String sql = getSelectSql("UPPER(CONCAT(sobrenome, ', ', nome)) LIKE ?");
+			PreparedStatement stmt = connection.prepareStatement(sql);
+			stmt.setString(1, "%"+nomeCompleto.toUpperCase()+"%");
+			ResultSet result = stmt.executeQuery();
+			while (result.next()){
+				Autor autor = getAutor(result);
+				if (!isIn(autor, remList))
+					list.add(autor);
+			}
+			result.close();
+			stmt.close();
+		} catch (SQLException e) {
+			throw new RuntimeException(e.getMessage(), e.getCause());
+		}
+		return list;
+	}
 	/**
 	 * Retorna a lista de autores de um livro
 	 * @param livro

@@ -37,16 +37,8 @@ public class LivroDAO {
     }
 
     private void check(Livro livro) throws ValidationException{
-        StringBuilder error = new StringBuilder();
         if (livro.getTitulo() == null || livro.getTitulo().isEmpty())
-            error.append("Titulo deve ser informado");
-        if (livro.getResumo() == null || livro.getResumo().isEmpty()){
-            if (error.length() > 0)
-                error.append(";\n");
-            error.append("Resumo deve ser informado");
-        }
-        if (error.length() > 0)
-            throw new ValidationException(error.toString());
+        	throw new ValidationException("Titulo deve ser informado");
     }
 
     private void setValues(Livro livro, PreparedStatement ps) throws SQLException{
@@ -59,7 +51,7 @@ public class LivroDAO {
         else
             ps.setObject(5, null);
         ps.setString(6, livro.getEdicao());
-        ps.setObject(7, livro.getVolume());
+        ps.setString(7, livro.getVolume());
         ps.setObject(8, livro.getNumPaginas());
         if (livro.getAssunto() != null)
             ps.setInt(9, livro.getAssunto().getId());
@@ -84,7 +76,7 @@ public class LivroDAO {
 
     private void insertCategorias(Livro livro) throws SQLException{
         for (Categoria categoria : livro.getCategorias()) {
-            PreparedStatement ps = connection.prepareStatement("INSERT INTO categoria_livro VALUES(?,?)");
+        	PreparedStatement ps = connection.prepareStatement("INSERT INTO categoria_livro VALUES(?,?)");
             ps.setInt(1, categoria.getId());
             ps.setInt(2, livro.getId());
             ps.executeUpdate();
@@ -198,7 +190,9 @@ public class LivroDAO {
         if (filter != null){
             builder.append("WHERE ");
             builder.append(filter);
+            builder.append(" ");
         }
+        builder.append("ORDER BY livro_id");
         return builder.toString();
     }
 
@@ -214,7 +208,7 @@ public class LivroDAO {
         livro.setCutter(result.getString("l.cutter"));
         livro.setResumo(result.getString("l.resumo"));
         livro.setEdicao(result.getString("l.edicao"));
-        livro.setVolume((Integer)result.getObject("l.volume"));
+        livro.setVolume(result.getString("l.volume"));
         livro.setNumPaginas((Integer)result.getObject("l.num_paginas"));
         livro.setDataPublicacao(TemporalUtil.getLocalDate(result.getString("l.data_publicacao")));
         livro.setLocalPublicacao(result.getString("l.local_publicacao"));
@@ -251,6 +245,9 @@ public class LivroDAO {
             CategoriaDAO categoriaDAO = new CategoriaDAO(connection);
             livro.setAutores(autorDao.getList(livro));
             livro.setCategorias(categoriaDAO.getCategorias(livro));
+            ExemplarDAO exemplarDAO = new ExemplarDAO(connection);
+            livro.setExemplares(exemplarDAO.getList(livro));
+            livro.setNumExemplares(livro.getExemplares().size());
             return livro;
         } catch (SQLException e) {
             throw new RuntimeException(e.getMessage(), e.getCause());
@@ -269,6 +266,9 @@ public class LivroDAO {
                 CategoriaDAO categoriaDAO = new CategoriaDAO(connection);
                 livro.setAutores(autorDao.getList(livro));
                 livro.setCategorias(categoriaDAO.getCategorias(livro));
+                ExemplarDAO exemplarDAO = new ExemplarDAO(connection);
+                livro.setExemplares(exemplarDAO.getList(livro));
+                livro.setNumExemplares(livro.getExemplares().size());
             	list.add(livro);
             }
             result.close();
@@ -292,6 +292,9 @@ public class LivroDAO {
                 CategoriaDAO categoriaDAO = new CategoriaDAO(connection);
                 livro.setAutores(autorDao.getList(livro));
                 livro.setCategorias(categoriaDAO.getCategorias(livro));
+                ExemplarDAO exemplarDAO = new ExemplarDAO(connection);
+                livro.setExemplares(exemplarDAO.getList(livro));
+                livro.setNumExemplares(livro.getExemplares().size());
             	list.add(livro);
             }
             result.close();

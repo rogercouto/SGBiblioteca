@@ -1,6 +1,7 @@
 package gb.model;
 
 import java.time.LocalDate;
+import java.time.format.DateTimeFormatter;
 
 public class Exemplar {
 
@@ -11,7 +12,13 @@ public class Exemplar {
 	private Origem origem;
 	private Boolean fixo;
 	private Situacao situacao;
-
+	
+	//Transient
+	private String descrSituacao;
+	private String descrOrigem;
+	private String descrSecao;
+	private String dataAquisForm;
+	
 	public Exemplar() {
 		super();
 	}
@@ -43,6 +50,8 @@ public class Exemplar {
 
 	public void setSecao(Secao secao) {
 		this.secao = secao;
+		if (secao != null)
+			descrSecao = secao.getDescricao();
 	}
 
 	public LocalDate getDataAquisicao() {
@@ -51,6 +60,10 @@ public class Exemplar {
 
 	public void setDataAquisicao(LocalDate dataAquisicao) {
 		this.dataAquisicao = dataAquisicao;
+		if (dataAquisicao != null){
+			DateTimeFormatter formatador = DateTimeFormatter.ofPattern("dd/MM/yyyy");
+			dataAquisForm = formatador.format(dataAquisicao);
+		}
 	}
 
 	public Origem getOrigem() {
@@ -59,6 +72,8 @@ public class Exemplar {
 
 	public void setOrigem(Origem origem) {
 		this.origem = origem;
+		if (origem != null)
+			descrOrigem = origem.getDescricao();
 	}
 
 	public Boolean getFixo() {
@@ -75,6 +90,25 @@ public class Exemplar {
 
 	public void setSituacao(Situacao situacao) {
 		this.situacao = situacao;
+		if (situacao != null)
+			descrSituacao = situacao.name();
 	}
+
+	public String getDescrSituacao() {
+		return descrSituacao;
+	}
+
+	public String getDescrOrigem() {
+		return descrOrigem;
+	}
+
+	public String getDataAquisForm() {
+		return dataAquisForm;
+	}
+
+	public String getDescrSecao() {
+		return descrSecao;
+	}
+
 
 }

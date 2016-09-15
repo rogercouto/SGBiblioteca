@@ -11,6 +11,7 @@ import java.util.List;
 import javax.xml.bind.ValidationException;
 
 import gb.model.Emprestimo;
+import gb.model.Situacao;
 import gb.model.Usuario;
 import gb.model.data.ConnectionManager;
 import gb.util.TemporalUtil;
@@ -68,6 +69,12 @@ public class EmprestimoDAO {
             ps.executeUpdate();
             ps.close();
             emprestimo.setId(ConnectionManager.getLastInsertId(connection));
+            sql = "UPDATE exemplar SET situacao = ? WHERE num_registro = ?";
+			ps = connection.prepareStatement(sql);
+			ps.setInt(1, Situacao.EMPRESTADO.getValue());
+			ps.setInt(2, emprestimo.getExemplar().getNumRegistro());
+			ps.executeUpdate();
+			ps.close();
         } catch (SQLException e) {
             throw new RuntimeException(e.getMessage(), e.getCause());
         }
@@ -110,6 +117,31 @@ public class EmprestimoDAO {
             String sql = "DELETE FROM emprestimo WHERE emprestimo_id = ?";
             PreparedStatement ps = connection.prepareStatement(sql);
             ps.setInt(1, emprestimo.getId());
+            ps.executeUpdate();
+            ps.close();
+            if (emprestimo.getDataHoraDevolucao() == null){
+            	sql = "UPDATE exemplar SET situacao = ? WHERE num_registro = ?";
+            	ps = connection.prepareStatement(sql);
+            	ps.setInt(1, Situacao.DISPONIVEL.getValue());
+            	ps.setInt(2, emprestimo.getExemplar().getNumRegistro());
+            	ps.executeUpdate();
+            	ps.close();
+            }
+        } catch (SQLException e) {
+            throw new RuntimeException(e.getMessage(), e.getCause());
+        }
+    }
+
+    public void registraDevolucao(Emprestimo emprestimo){
+    	try {
+            if (emprestimo.getId() == null)
+                throw new RuntimeException("Id da empr\u00e9stimo n\u00e3o pode ser null!");
+            if (emprestimo.getDataHoraDevolucao() == null)
+            	throw new RuntimeException("Data/Hora da devolu\u00e7\u00e3o n\u00e3o pode ser null!");
+            String sql = "UPDATE emprestimo SET data_hora_devolucao = ? WHERE emprestimo_id = ?";
+            PreparedStatement ps = connection.prepareStatement(sql);
+            ps.setString(1, TemporalUtil.getDbDateTime(emprestimo.getDataHoraDevolucao()));
+            ps.setInt(2, emprestimo.getId());
             ps.executeUpdate();
             ps.close();
         } catch (SQLException e) {
