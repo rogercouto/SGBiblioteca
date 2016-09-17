@@ -372,10 +372,8 @@ public class LivroDAO {
     public List<Livro> findList(String fieldName, String text, List<Autor> autores, List<Categoria> categorias){
         try {
         	StringBuilder builder = new StringBuilder();
-        	builder.append(getSelectSql());
-        	builder.append(" WHERE ");
         	boolean first = true;
-        	if (autores != null && !categorias.isEmpty()){
+        	if (autores != null && !autores.isEmpty()){
         		builder.append(getFilterAutores(autores));
         		first = false;
         	}
@@ -391,7 +389,7 @@ public class LivroDAO {
         		builder.append(fieldName);
         		builder.append(") LIKE ?");
         	}
-            PreparedStatement ps = connection.prepareStatement(builder.toString());
+            PreparedStatement ps = connection.prepareStatement(getSelectSql(builder.toString()));
             if (fieldName != null && text != null)
             	ps.setString(1, "%"+text.toUpperCase()+"%");
             ResultSet result = ps.executeQuery();
@@ -402,6 +400,9 @@ public class LivroDAO {
                 CategoriaDAO categoriaDAO = new CategoriaDAO(connection);
                 livro.setAutores(autorDao.getList(livro));
                 livro.setCategorias(categoriaDAO.getCategorias(livro));
+                ExemplarDAO exemplarDAO = new ExemplarDAO(connection);
+                livro.setExemplares(exemplarDAO.getList(livro));
+                livro.setNumExemplares(livro.getExemplares().size());
             	list.add(livro);
             }
             result.close();
@@ -412,6 +413,10 @@ public class LivroDAO {
         } catch (SQLException e) {
             throw new RuntimeException(e.getMessage(), e.getCause());
         }
+    }
+    
+    public List<Livro> findList(List<Autor> autores){
+    	return findList(null, null, autores, null);
     }
 
 }

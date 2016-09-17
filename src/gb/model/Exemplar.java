@@ -10,7 +10,7 @@ public class Exemplar {
 	private Secao secao;
 	private LocalDate dataAquisicao;
 	private Origem origem;
-	private Boolean fixo;
+	private boolean fixo = false;
 	private Situacao situacao;
 	
 	//Transient
@@ -18,6 +18,7 @@ public class Exemplar {
 	private String descrOrigem;
 	private String descrSecao;
 	private String dataAquisForm;
+	private String tituloLivro;
 	
 	public Exemplar() {
 		super();
@@ -42,6 +43,7 @@ public class Exemplar {
 
 	public void setLivro(Livro livro) {
 		this.livro = livro;
+		tituloLivro = livro.getTitulo();
 	}
 
 	public Secao getSecao() {
@@ -76,11 +78,11 @@ public class Exemplar {
 			descrOrigem = origem.getDescricao();
 	}
 
-	public Boolean getFixo() {
+	public boolean getFixo() {
 		return fixo;
 	}
 
-	public void setFixo(Boolean fixo) {
+	public void setFixo(boolean fixo) {
 		this.fixo = fixo;
 	}
 
@@ -108,6 +110,10 @@ public class Exemplar {
 
 	public String getDescrSecao() {
 		return descrSecao;
+	}
+
+	public String getTituloLivro() {
+		return tituloLivro;
 	}
 
 

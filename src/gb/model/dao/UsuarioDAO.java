@@ -164,7 +164,7 @@ public class UsuarioDAO {
 				sql = "DELETE FROM endereco WHERE endereco_id = ?";
 				ps = connection.prepareStatement(sql);
 				ps.setInt(1, idEndereco);
-				ps.executeUpdate(sql);
+				ps.executeUpdate();
 			}
 			ps.close();
 		} catch (SQLException e) {
@@ -284,4 +284,38 @@ public class UsuarioDAO {
 		return list;
 	}
 
+	public int getNumReservas(Usuario usuario){
+		try {
+			int numReservas = 0;
+			String sql = "select count(reserva_id) from reserva where data_hora_retirada IS NULL AND usuario_id = ?";
+			PreparedStatement ps = connection.prepareStatement(sql);
+			ps.setInt(1, usuario.getId());
+			ResultSet result = ps.executeQuery();
+			if (result.next())
+				numReservas = result.getInt(1);
+			result.close();
+			ps.close();
+			return numReservas;
+		}catch(SQLException e){
+			throw new RuntimeException(e.getMessage(), e.getCause());
+		}
+	}
+	
+	public int getNumEmprestimos(Usuario usuario){
+		try {
+			int numReservas = 0;
+			String sql = "select count(emprestimo_id) from emprestimo where data_hora_devolucao IS NULL AND usuario_id = ?";
+			PreparedStatement ps = connection.prepareStatement(sql);
+			ps.setInt(1, usuario.getId());
+			ResultSet result = ps.executeQuery();
+			if (result.next())
+				numReservas = result.getInt(1);
+			result.close();
+			ps.close();
+			return numReservas;
+		}catch(SQLException e){
+			throw new RuntimeException(e.getMessage(), e.getCause());
+		}
+	}
+	
 }

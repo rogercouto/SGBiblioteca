@@ -17,6 +17,8 @@ import org.eclipse.swt.widgets.ToolBar;
 import org.eclipse.swt.widgets.ToolItem;
 import org.eclipse.wb.swt.SWTResourceManager;
 
+import swt.cw.util.Screen;
+
 public class MainWindowView {
 
 	protected Shell shell;
@@ -151,9 +153,36 @@ public class MainWindowView {
 		tbtUsuarios = new ToolItem(toolBar, SWT.NONE);
 		tbtUsuarios.setImage(SWTResourceManager.getImage(MainWindowView.class, "/img/ic_account_circle_black_36dp.png"));
 		tbtUsuarios.setToolTipText("Usuários...");
+		Screen.centralize(shell);
 	}
 	
 	private void addListeners(){
+		SelectionListener lancaEmprestimoListener = new SelectionAdapter() {
+			@Override
+			public void widgetSelected(SelectionEvent arg0) {
+				lancaEmprestimo();
+			}
+		};
+		mbtEmprstimo.addSelectionListener(lancaEmprestimoListener);
+		tbtEmprestimo.addSelectionListener(lancaEmprestimoListener);
+		SelectionListener lancaReservaListener = new SelectionAdapter() {
+			@Override
+			public void widgetSelected(SelectionEvent arg0) {
+				lancaReserva();
+			}
+		};
+		mbtReserva.addSelectionListener(lancaReservaListener);
+		tbtReserva.addSelectionListener(lancaReservaListener);
+		
+		SelectionListener lancaDevolucaoListener = new SelectionAdapter() {
+			@Override
+			public void widgetSelected(SelectionEvent arg0) {
+				lancaDevolucao();
+			}
+		};
+		mbtDevoluo.addSelectionListener(lancaDevolucaoListener);
+		tbtDevolucao.addSelectionListener(lancaDevolucaoListener);
+		
 		SelectionListener getLivrosExListener = new SelectionAdapter() {
 			@Override
 			public void widgetSelected(SelectionEvent arg0) {
@@ -162,6 +191,14 @@ public class MainWindowView {
 		};
 		mbtLivrosEx.addSelectionListener(getLivrosExListener);
 		tbtLivrosEx.addSelectionListener(getLivrosExListener);
+		SelectionListener gerUsuariosListener = new SelectionAdapter() {
+			@Override
+			public void widgetSelected(SelectionEvent arg0) {
+				abreGerenciaUsuarios();
+			}
+		};
+		mbtUsuarios.addSelectionListener(gerUsuariosListener);
+		tbtUsuarios.addSelectionListener(gerUsuariosListener);
 	}
 	
 	protected void clearConteudo(){
@@ -189,5 +226,15 @@ public class MainWindowView {
 		shell.layout(true);
 	}
 	
+	protected void lancaEmprestimo(){}
+	
+	protected void lancaReserva(){}
+	
+	protected void lancaDevolucao(){}
+	
 	protected void abreGerenciaLivrosEx(){}
+	
+	protected void abreGerenciaUsuarios(){}
+	
+	
 }

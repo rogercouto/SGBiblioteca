@@ -1,9 +1,13 @@
 package gb.model;
 
+import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.time.temporal.ChronoUnit;
 
 public class Emprestimo {
 
+	public static final double MULTA_DIA = 1.0;
+	
 	private Integer id;
 	private LocalDateTime dataHora;
 	private Usuario usuario;
@@ -11,7 +15,7 @@ public class Emprestimo {
 	private Integer numRenovacoes = 0;
 	private LocalDateTime dataHoraDevolucao;
 	private Double multaPaga = 0.0;
-
+	
 	public Emprestimo() {
 		super();
 	}
@@ -32,6 +36,13 @@ public class Emprestimo {
 		this.dataHora = dataHora;
 	}
 
+	public LocalDate getPrevisaoDevolucao(){
+		if (usuario == null || usuario.getTipo() == null)
+			return null;
+		LocalDateTime ldt = dataHora.plus(usuario.getTipo().getDiasEmprestimo(), ChronoUnit.DAYS);
+		return LocalDate.from(ldt);
+	}
+	
 	public Usuario getUsuario() {
 		return usuario;
 	}

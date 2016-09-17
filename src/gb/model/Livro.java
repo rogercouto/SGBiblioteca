@@ -27,6 +27,9 @@ public class Livro {
 	private boolean atualizaAutores = false;
 	private boolean atualizaCategorias = false;
 	
+	//Transient
+	private String nomeAutores;
+	
 	public Livro() {
 		super();
 	}
@@ -133,20 +136,24 @@ public class Livro {
 
 	public void setAutores(List<Autor> autores) {
 		this.autores = autores;
+		setNomeAutores();
 	}
 
 	public void addAutor(Autor autor){
 		autores.add(autor);
+		setNomeAutores();
 		atualizaAutores = true;
 	}
 	
 	public void setAutor(int index, Autor autor){
 		autores.set(index, autor);
+		setNomeAutores();
 		atualizaAutores = true;
 	}
 	
 	public void removeAutor(int index){
 		autores.remove(index);
+		setNomeAutores();
 		atualizaAutores = true;
 	}
 	
@@ -200,4 +207,20 @@ public class Livro {
 	public String toString(){
 		return id+" - "+titulo;
 	}
+	
+	private void setNomeAutores(){
+		StringBuilder builder = new StringBuilder();
+		for (Autor autor : autores) {
+			if (builder.length() > 0)
+				builder.append("; ");
+			builder.append(autor.getNomeCompleto());
+		}
+		if (builder.length() > 0)
+			nomeAutores = builder.toString();
+	}
+
+	public String getNomeAutores() {
+		return nomeAutores;
+	}
+
 }

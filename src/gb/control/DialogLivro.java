@@ -2,7 +2,6 @@ package gb.control;
 
 import java.sql.Connection;
 import java.time.LocalDate;
-import java.time.format.DateTimeFormatter;
 import java.time.temporal.TemporalAccessor;
 import java.util.ArrayList;
 import java.util.List;
@@ -13,12 +12,11 @@ import org.eclipse.swt.events.ModifyEvent;
 import org.eclipse.swt.events.SelectionEvent;
 import org.eclipse.swt.events.ShellEvent;
 import org.eclipse.swt.events.TraverseEvent;
-import org.eclipse.swt.graphics.Image;
 import org.eclipse.swt.widgets.Event;
 import org.eclipse.swt.widgets.Listener;
 import org.eclipse.swt.widgets.Shell;
-import org.eclipse.wb.swt.SWTResourceManager;
 
+import gb.Main;
 import gb.model.Assunto;
 import gb.model.Autor;
 import gb.model.Categoria;
@@ -37,12 +35,11 @@ import gb.view.DialogLivroView;
 import swt.cw.Customizer;
 import swt.cw.dialog.FindDialog;
 import swt.cw.model.FindSource;
+import swt.cw.model.SaveListener;
 import swt.cw.util.Dialog;
 
 public class DialogLivro extends DialogLivroView {
 
-	private static final DateTimeFormatter FORMATADOR = DateTimeFormatter.ofPattern("dd/MM/yyyy");
-	
 	private Livro livro = null;
 	
 	private List<Editora> editoras;
@@ -78,7 +75,6 @@ public class DialogLivro extends DialogLivroView {
 		assuntos = assuntoDAO.getList();
 		CategoriaDAO categoriaDAO = new CategoriaDAO(connection);
 		categorias = categoriaDAO.getCategorias();
-		
 		//Preenche os combos
 		for (Editora editora : editoras) {
 			cmbEditora.add(editora.getNome());
@@ -122,7 +118,7 @@ public class DialogLivro extends DialogLivroView {
 				}
 			}
 			if (livro.getDataPublicacao() != null){
-				txtDataPublicacao.setText(FORMATADOR.format(livro.getDataPublicacao()));
+				txtDataPublicacao.setText(Main.FORMATADOR_D.format(livro.getDataPublicacao()));
 			}
 			if (livro.getLocalPublicacao() != null)
 				txtLocalPublicacao.setText(livro.getLocalPublicacao());
@@ -182,18 +178,20 @@ public class DialogLivro extends DialogLivroView {
 		dialogAutores.setText("Buscar autor");
 		dialogAutores.addColumn("nomeCompleto", "Nome", true);
 		dialogAutores.setFindText(txtBuscaAutor.getText());
-		dialogAutores.setIcons(new Image[]{
-				SWTResourceManager.getImage(this.getClass(), "/img/ic_search_black_18dp.png"),
-				SWTResourceManager.getImage(this.getClass(), "/img/ic_add_circle_black_24dp.png"),
-				SWTResourceManager.getImage(this.getClass(), "/img/ic_done_black_24dp.png"),
-				SWTResourceManager.getImage(this.getClass(), "/img/ic_clear_black_24dp.png")
-		});
+		dialogAutores.setIcons(Main.ICONS);
 		dialogAutores.setFindSource(new FindSource() {
 			@Override
 			public List<?> getList(int index, String text) {
 				AutorDAO dao = new AutorDAO();
 				List<Autor> list = dao.findList(text, livro.getAutores());
 				return list;
+			}
+		});
+		dialogAutores.setInsertListener(new SaveListener() {
+			@Override
+			public Object handleEvent(Object object) {
+				DialogAutor dialog = new DialogAutor(dialogAutores.getParent());
+				return dialog.open();
 			}
 		});
 		autor = (Autor)dialogAutores.open();
@@ -237,7 +235,7 @@ public class DialogLivro extends DialogLivroView {
 					break;
 				}
 			}
-			if (insert && !cmbAddCategoria.getText().isEmpty()){
+			if (insert && cmbAddCategoria.getText().trim().length() > 0){
 				Categoria categoria = new Categoria();
 				categoria.setDescricao(cmbAddCategoria.getText());
 				CategoriaDAO categoriaDAO = new CategoriaDAO();
@@ -269,6 +267,7 @@ public class DialogLivro extends DialogLivroView {
 	}
 	
 	private boolean salvar(){
+		Connection connection = ConnectionManager.getConnection();
 		if (txtTitulo.getText().trim().length() > 0)
 			livro.setTitulo(txtTitulo.getText());
 		if (txtResumo.getText().trim().length() > 0)
@@ -290,14 +289,39 @@ public class DialogLivro extends DialogLivroView {
 			}
 			if (insert){
 				Editora editora = new Editora();
-				editora.setNome(cmbEditora.getText());
-				EditoraDAO dao = new EditoraDAO();
+				editora.setNome(cmbEditora.getText().trim());
+				EditoraDAO dao = new EditoraDAO(connection);
 				try {
 					dao.insert(editora);
 				} catch (ValidationException e) {
+					ConnectionManager.closeConnection(connection);
 					throw new RuntimeException(e.getMessage());
 				}
 				livro.setEditora(editora);
+			}
+		}
+		if (cmbAssunto.getSelectionIndex() >= 0){
+			livro.setAssunto(assuntos.get(cmbAssunto.getSelectionIndex()));
+		}else if (cmbAssunto.getText().trim().length() > 0){
+			boolean insert = true;
+			for (Assunto assunto : assuntos) {
+				if (cmbAssunto.getText().trim().compareTo(assunto.getDescricao()) == 0 ){
+					insert = false;
+					livro.setAssunto(assunto);
+					break;
+				}
+			}
+			if (insert){
+				Assunto assunto = new Assunto();
+				assunto.setDescricao(cmbAssunto.getText().trim());
+				AssuntoDAO dao = new AssuntoDAO(connection);
+				try {
+					dao.insert(assunto);
+				} catch (ValidationException e) {
+					ConnectionManager.closeConnection(connection);
+					throw new RuntimeException(e.getMessage());
+				}
+				livro.setAssunto(assunto);
 			}
 		}
 		if (txtEdicao.getText().trim().length() > 0)
@@ -306,26 +330,28 @@ public class DialogLivro extends DialogLivroView {
 			livro.setVolume(txtVolume.getText());
 		if (txtNumPag.getText().trim().length() > 0)
 			livro.setNumPaginas(Integer.parseInt(txtNumPag.getText()));
-		if (cmbAssunto.getSelectionIndex() >= 0)
-			livro.setAssunto(assuntos.get(cmbAssunto.getSelectionIndex()));
 		if (txtDataPublicacao.getText().trim().length() > 0){
-			TemporalAccessor ta = FORMATADOR.parse(txtDataPublicacao.getText());
+			TemporalAccessor ta = Main.FORMATADOR_D.parse(txtDataPublicacao.getText());
 			livro.setDataPublicacao(LocalDate.from(ta));
 		}
 		if (txtLocalPublicacao.getText().trim().length() > 0)
 			livro.setLocalPublicacao(txtLocalPublicacao.getText());
-		LivroDAO livroDAO = new LivroDAO();
+		LivroDAO livroDAO = new LivroDAO(connection);
+		boolean saved = false;
 		try {
 			livroDAO.save(livro);
 			result = livro;
 			modificado = false;
 			btnSalvar.setEnabled(false);
 			Dialog.confirmation(shell, "Livro salvo!");
-			return true;
+			saved = true;
 		} catch (ValidationException e) {
 			Dialog.error(shell, e.getMessage());
-			return false;
+			saved = false;
+		} finally {
+			ConnectionManager.closeConnection(connection);
 		}
+		return saved;
 	}
 	
 	protected void btnBuscaAutorWidgetSelected(SelectionEvent arg0) {
@@ -383,7 +409,7 @@ public class DialogLivro extends DialogLivroView {
 	}
 	
 	protected void cmbAddCategoriaModifyText(ModifyEvent arg0) {
-		btnAddCategoria.setEnabled(!cmbAddCategoria.getText().isEmpty());
+		btnAddCategoria.setEnabled(cmbAddCategoria.getText().trim().length() > 0);
 	}
 	
 	protected void lstCategoriasWidgetSelected(SelectionEvent arg0) {

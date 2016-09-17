@@ -1,14 +1,17 @@
 package gb.model;
 
+import java.time.LocalDate;
 import java.time.LocalDateTime;
 
 public class Reserva {
+	
+	public static final int DIAS_RESERVA = 7;
 
 	private Integer id;
 	private Exemplar exemplar;
 	private Usuario usuario;
 	private LocalDateTime dataHora;
-	private LocalDateTime dataHoraLimite;
+	private LocalDate dataLimite;
 	private LocalDateTime dataHoraRetirada;
 	private boolean cancelada = false;
 
@@ -40,12 +43,12 @@ public class Reserva {
 		this.dataHora = dataHora;
 	}
 
-	public LocalDateTime getDataHoraLimite() {
-		return dataHoraLimite;
+	public LocalDate getDataHoraLimite() {
+		return dataLimite;
 	}
 
-	public void setDataHoraLimite(LocalDateTime dataHoraLimite) {
-		this.dataHoraLimite = dataHoraLimite;
+	public void setDataLimite(LocalDate dataLimite) {
+		this.dataLimite = dataLimite;
 	}
 
 	public LocalDateTime getDataHoraRetirada() {

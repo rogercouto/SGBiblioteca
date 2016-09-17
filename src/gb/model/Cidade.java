@@ -5,6 +5,9 @@ public class Cidade {
 	private Integer id;
 	private String nome;
 	private Estado estado;
+	
+	//Transient
+	private String siglaEstado;
 
 	public Cidade() {
 		super();
@@ -32,7 +35,12 @@ public class Cidade {
 
 	public void setEstado(Estado estado) {
 		this.estado = estado;
+		if (estado != null)
+			siglaEstado = estado.getSigla();
 	}
 
+	public String getSiglaEstado() {
+		return siglaEstado;
+	}
 
 }

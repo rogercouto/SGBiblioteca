@@ -4,6 +4,8 @@ import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.util.ArrayList;
+import java.util.List;
 
 import gb.model.Cidade;
 import gb.model.Endereco;
@@ -61,11 +63,11 @@ public class EnderecoDAO {
 					+ " complemento) VALUES(?,?,?,?,?,?)";
 			PreparedStatement ps = connection.prepareStatement(sql);
 			ps.setString(1, endereco.getLogradouro());
-			if (endereco.getId() != null)
-				ps.setInt(2, endereco.getNumero());
+			ps.setObject(2, endereco.getNumero());
+			if (endereco.getCidade() != null)
+				ps.setObject(3, endereco.getCidade().getId());
 			else
-				ps.setObject(2, null);
-			ps.setInt(3, endereco.getCidade().getId());
+				ps.setObject(3, null);
 			ps.setString(4, endereco.getBairro());
 			ps.setString(5, endereco.getCep());
 			ps.setString(6, endereco.getComplemento());
@@ -82,15 +84,16 @@ public class EnderecoDAO {
 			if (endereco.getId() == null)
 				throw new RuntimeException("Chave prim\u00e1rio indefinida para o endere\u00e7o!");
 			check(endereco);
-			String sql = "UPDATE endereco logradouro = ?, numero = ?, cidade_id = ?, bairro = ?,"
+			String sql = "UPDATE endereco SET logradouro = ?, numero = ?, cidade_id = ?, bairro = ?,"
 					+ " cep = ?, complemento = ?  WHERE endereco_id = ?";
+			System.out.println(sql);
 			PreparedStatement ps = connection.prepareStatement(sql);
 			ps.setString(1, endereco.getLogradouro());
-			if (endereco.getId() != null)
-				ps.setInt(2, endereco.getNumero());
+			ps.setObject(2, endereco.getNumero());
+			if (endereco.getCidade() != null)
+				ps.setObject(3, endereco.getCidade().getId());
 			else
-				ps.setObject(2, null);
-			ps.setInt(3, endereco.getCidade().getId());
+				ps.setObject(3, null);
 			ps.setString(4, endereco.getBairro());
 			ps.setString(5, endereco.getCep());
 			ps.setString(6, endereco.getComplemento());
@@ -187,6 +190,29 @@ public class EnderecoDAO {
 			result.close();
 			ps.close();
 			return endereco;
+		}catch(SQLException e){
+			throw new RuntimeException(e.getMessage(), e.getCause());
+		}
+	}
+	
+	public List<Cidade> findCidades(String nome){
+		try {
+			String sql = "SELECT * FROM cidade c INNER JOIN estado e ON c.sigla_estado  = e.sigla_estado WHERE nome LIKE ?";
+			PreparedStatement ps = connection.prepareStatement(sql);
+			ps.setString(1, "%"+nome+"%");
+			ResultSet result = ps.executeQuery();
+			List<Cidade> list = new ArrayList<>();
+			while (result.next()){
+				Cidade cidade = new Cidade();
+				cidade.setId(result.getInt("cidade_id"));
+				cidade.setNome(result.getString("nome"));
+				Estado estado = new Estado();
+				estado.setSigla(result.getString("e.sigla_estado"));
+				estado.setNome(result.getString("nome_estado"));
+				cidade.setEstado(estado);
+				list.add(cidade);
+			}
+			return list;
 		}catch(SQLException e){
 			throw new RuntimeException(e.getMessage(), e.getCause());
 		}

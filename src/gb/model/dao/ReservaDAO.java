@@ -5,15 +5,16 @@ import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
+import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
 
-import javax.xml.bind.ValidationException;
-
+import gb.model.Exemplar;
 import gb.model.Reserva;
 import gb.model.Situacao;
 import gb.model.Usuario;
 import gb.model.data.ConnectionManager;
+import gb.model.exceptions.ValidationException;
 import gb.util.TemporalUtil;
 
 public class ReservaDAO {
@@ -62,11 +63,11 @@ public class ReservaDAO {
 	public void insert(Reserva reserva) throws ValidationException{
 		try {
 			check(reserva);
-			String sql = "INSERT INTO reserva(data_hora, data_hora_limite, data_hora_retirada,"
+			String sql = "INSERT INTO reserva(data_hora, data_limite, data_hora_retirada,"
 					+ " usuario_id, num_registro) VALUES(?, ?, ?, ?, ?)";
 			PreparedStatement ps = connection.prepareStatement(sql);
 			ps.setString(1, TemporalUtil.getDbDateTime(reserva.getDataHora()));
-			ps.setString(2, TemporalUtil.getDbDateTime(reserva.getDataHoraLimite()));
+			ps.setString(2, TemporalUtil.getDbDate(reserva.getDataHoraLimite()));
 			ps.setString(3, TemporalUtil.getDbDateTime(reserva.getDataHoraRetirada()));
 			ps.setInt(4, reserva.getUsuario().getId());
 			ps.setInt(5, reserva.getExemplar().getNumRegistro());
@@ -89,12 +90,12 @@ public class ReservaDAO {
 			if (reserva.getId() == null)
 				throw new RuntimeException("Id da reserva n\u00e3o pode ser null!");
 			check(reserva);
-			String sql = "UPDATE reserva SET data_hora = ?, data_hora_limite = ?,"
+			String sql = "UPDATE reserva SET data_hora = ?, data_limite = ?,"
 					+ " data_hora_retirada = ?, usuario_id = ?, num_registro= ?, cancelada = ?"
 					+ " WHERE reserva_id = ?";
 			PreparedStatement ps = connection.prepareStatement(sql);
 			ps.setString(1, TemporalUtil.getDbDateTime(reserva.getDataHora()));
-			ps.setString(2, TemporalUtil.getDbDateTime(reserva.getDataHoraLimite()));
+			ps.setString(2, TemporalUtil.getDbDate(reserva.getDataHoraLimite()));
 			ps.setString(3, TemporalUtil.getDbDateTime(reserva.getDataHoraRetirada()));
 			ps.setInt(4, reserva.getUsuario().getId());
 			ps.setInt(5, reserva.getExemplar().getNumRegistro());
@@ -185,7 +186,7 @@ public class ReservaDAO {
 		Reserva reserva = new Reserva();
 		reserva.setId(result.getInt("r.reserva_id"));
 		reserva.setDataHora(TemporalUtil.getLocalDateTime(result.getString("r.data_hora")));
-		reserva.setDataHoraLimite(TemporalUtil.getLocalDateTime(result.getString("r.data_hora_limite")));
+		reserva.setDataLimite(TemporalUtil.getLocalDate(result.getString("r.data_limite")));
 		reserva.setDataHoraRetirada(TemporalUtil.getLocalDateTime(result.getString("r.data_hora_retirada")));
 		reserva.setCancelada(result.getBoolean("r.cancelada"));
 		reserva.setUsuario(UsuarioDAO.getUsuario(result));
@@ -228,9 +229,10 @@ public class ReservaDAO {
 
 	public List<Reserva> getList(Usuario usuario){
 		try {
-			String sql = getSelectSql("u.usuario_id = ?");
+			String sql = getSelectSql("u.usuario_id = ? AND r.data_limite >= ?");
 			PreparedStatement ps = connection.prepareStatement(sql);
 			ps.setInt(1, usuario.getId());
+			ps.setString(2, TemporalUtil.getDbDate(LocalDate.now()));
 			ResultSet result = ps.executeQuery();
 			List<Reserva> list = new ArrayList<>();
 			while (result.next())
@@ -242,4 +244,38 @@ public class ReservaDAO {
 			throw new RuntimeException(e.getMessage(), e.getCause());
 		}
 	}
+	
+	public List<Reserva> getListExpiradas(){
+		try {
+			String sql = getSelectSql("cancelada = 0 AND r.data_limite < ?");
+			PreparedStatement ps = connection.prepareStatement(sql);
+			ps.setString(1, TemporalUtil.getDbDate(LocalDate.now()));
+			ResultSet result = ps.executeQuery();
+			List<Reserva> list = new ArrayList<>();
+			while (result.next())
+				list.add(getReserva(result));
+			result.close();
+			ps.close();
+			return list;
+		} catch (SQLException e) {
+			throw new RuntimeException(e.getMessage(), e.getCause());
+		}
+	}
+
+	public void disponibilizaExpiradas(){
+		List<Reserva> list = getListExpiradas();
+		ExemplarDAO dao = new ExemplarDAO(connection);
+		for (Reserva reserva : list) {
+			Exemplar exemplar = reserva.getExemplar();
+			if (exemplar.getSituacao().equals(Situacao.RESERVADO)){
+				exemplar.setSituacao(Situacao.DISPONIVEL);
+				try {
+					dao.update(exemplar);
+				} catch (ValidationException e) {
+					throw new RuntimeException(e.getMessage());
+				}
+			}
+		}
+	}
+	
 }

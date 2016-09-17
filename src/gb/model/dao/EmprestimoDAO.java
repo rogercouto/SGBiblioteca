@@ -8,12 +8,12 @@ import java.sql.Statement;
 import java.util.ArrayList;
 import java.util.List;
 
-import javax.xml.bind.ValidationException;
-
 import gb.model.Emprestimo;
+import gb.model.Exemplar;
 import gb.model.Situacao;
 import gb.model.Usuario;
 import gb.model.data.ConnectionManager;
+import gb.model.exceptions.ValidationException;
 import gb.util.TemporalUtil;
 
 public class EmprestimoDAO {
@@ -232,6 +232,22 @@ public class EmprestimoDAO {
             result.close();
             ps.close();
             return list;
+        } catch (SQLException e) {
+            throw new RuntimeException(e.getMessage(), e.getCause());
+        }
+    }
+    
+    public Emprestimo getLastEmprestimo(Exemplar exemplar){
+    	try {
+    		String sql = getSelectSql("situacao = 3 AND data_hora_devolucao IS NULL");
+            PreparedStatement ps = connection.prepareStatement(sql);
+            ResultSet result = ps.executeQuery();
+            Emprestimo emprestimo = null;
+            while (result.next())
+                emprestimo = getEmprestimo(result);
+            result.close();
+            ps.close();
+            return emprestimo;
         } catch (SQLException e) {
             throw new RuntimeException(e.getMessage(), e.getCause());
         }

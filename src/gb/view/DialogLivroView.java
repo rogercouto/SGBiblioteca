@@ -140,7 +140,7 @@ public class DialogLivroView extends Dialog {
 		Label lblNewLabel_1 = new Label(tab1, SWT.NONE);
 		lblNewLabel_1.setLayoutData(new GridData(SWT.RIGHT, SWT.TOP, false, false, 1, 1));
 		lblNewLabel_1.setText("Resumo:");
-		txtResumo = new Text(tab1, SWT.BORDER | SWT.V_SCROLL | SWT.MULTI);
+		txtResumo = new Text(tab1, SWT.BORDER | SWT.WRAP | SWT.V_SCROLL | SWT.MULTI);
 		GridData gd_txtResumo = new GridData(SWT.FILL, SWT.CENTER, true, false, 3, 1);
 		gd_txtResumo.heightHint = 60;
 		txtResumo.setLayoutData(gd_txtResumo);
@@ -185,7 +185,7 @@ public class DialogLivroView extends Dialog {
 		Label lblNewLabel_8 = new Label(tab1, SWT.NONE);
 		lblNewLabel_8.setLayoutData(new GridData(SWT.RIGHT, SWT.CENTER, false, false, 1, 1));
 		lblNewLabel_8.setText("Assunto:");
-		cmbAssunto = new Combo(tab1, SWT.READ_ONLY);
+		cmbAssunto = new Combo(tab1, SWT.NONE);
 		cmbAssunto.addKeyListener(new KeyAdapter() {
 			@Override
 			public void keyPressed(KeyEvent arg0) {

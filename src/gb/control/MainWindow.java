@@ -18,6 +18,37 @@ public class MainWindow extends MainWindowView {
 		gerencia = new GerenciaLivroEx(cmpConteudo);
 		setConteudo(gerencia);
 	}
+	
+	@Override
+	protected void abreGerenciaUsuarios() {
+		if (gerencia != null)
+			gerencia.dispose();
+		clearConteudo();
+		gerencia = new GerenciaUsuarios(cmpConteudo);
+		setConteudo(gerencia);
+	}
+	
+	@Override
+	protected void lancaEmprestimo(){
+		new DialogEmprestimo(shell).open();
+		if (gerencia != null)
+			gerencia.refresh();
+	}
+	
+	@Override
+	protected void lancaReserva(){
+		new DialogReserva(shell).open();
+		if (gerencia != null)
+			gerencia.refresh();
+	}
+	
+	@Override
+	protected void lancaDevolucao(){
+		new DialogDevolucao(shell).open();
+		if (gerencia != null)
+			gerencia.refresh();
+	}
+	
 	/**
 	 * Launch the application.
 	 * @param args

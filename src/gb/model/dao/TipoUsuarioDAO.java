@@ -173,7 +173,7 @@ public class TipoUsuarioDAO {
 	public List<TipoUsuario> getList(){
 		List<TipoUsuario> list = new ArrayList<>();
 		try {
-			String sql = getSelectSql(getSelectSql());
+			String sql = getSelectSql();
 			Statement stmt = connection.createStatement();
 			ResultSet result = stmt.executeQuery(sql);
 			while (result.next())

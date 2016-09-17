@@ -146,7 +146,7 @@ CREATE TABLE reserva(
     num_registro INTEGER NOT NULL,
     usuario_id INTEGER NOT NULL,
     data_hora TIMESTAMP NOT NULL,
-    data_hora_limite DATETIME NOT NULL,
+    data_hora DATE NOT NULL,
     data_hora_retirada DATETIME,
     cancelada TINYINT NOT NULL DEFAULT 0,
 );
