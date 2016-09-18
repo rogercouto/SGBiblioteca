@@ -49,6 +49,7 @@ public class DialogReserva extends DialogReservaView {
 		FindDialog dialog = new FindDialog(shell);
 		dialog.setText("Buscar usuario");
 		dialog.addColumn("nome", "Nome", true);
+		dialog.setWidth(0, 400);
 		dialog.setIcons(Main.ICONS);
 		dialog.setFindSource(new FindSource() {
 			@Override
@@ -86,20 +87,25 @@ public class DialogReserva extends DialogReservaView {
 		FindDialog dialog = new FindDialog(shell);
 		dialog.setText("Buscar exemplar");
 		dialog.addColumn("numRegistro", "Nº", true);
-		dialog.addColumn("tituloLivro", "Título", true);
+		dialog.addColumn("livro.titulo", "Título", true);
+		dialog.setWidth(1, 300);
 		dialog.setIcons(Main.ICONS);
 		dialog.setFindSource(new FindSource() {
 			@Override
 			public List<?> getList(int index, String text) {
 				ExemplarDAO dao = new ExemplarDAO();
-				List<Exemplar> list = dao.findFromDialogReserva(index, text);
+				List<Exemplar> list = dao.findList(index, text, Situacao.DISPONIVEL);
 				dao.closeConnection();
 				return list;
 			}
 		});
 		Exemplar exemplar = (Exemplar)dialog.open();
 		if (exemplar != null){
-			txtExemplar.setText(exemplar.getNumRegistro()+" - "+exemplar.getTituloLivro());
+			if (exemplar.getFixo()){
+				Dialog.warning(shell, "Livro não pode ser emprestado!");
+				return;
+			}
+			txtExemplar.setText(exemplar.getNumRegistro()+" - "+exemplar.getLivro().getTitulo());
 			reserva.setExemplar(exemplar);
 			txtDataHora.setFocus();
 		}

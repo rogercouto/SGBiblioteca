@@ -39,7 +39,7 @@ public class ReservaDAO {
 		StringBuilder builder = new StringBuilder();
 		if (reserva.getDataHora() == null)
 			builder.append("Data e hora devem ser informadas");
-		if (reserva.getDataHoraLimite() == null){
+		if (reserva.getDataLimite() == null){
 			if (builder.length() > 0)
 				builder.append(";\n");
 			builder.append("Data limite da retirada deve ser informada");
@@ -67,7 +67,7 @@ public class ReservaDAO {
 					+ " usuario_id, num_registro) VALUES(?, ?, ?, ?, ?)";
 			PreparedStatement ps = connection.prepareStatement(sql);
 			ps.setString(1, TemporalUtil.getDbDateTime(reserva.getDataHora()));
-			ps.setString(2, TemporalUtil.getDbDate(reserva.getDataHoraLimite()));
+			ps.setString(2, TemporalUtil.getDbDate(reserva.getDataLimite()));
 			ps.setString(3, TemporalUtil.getDbDateTime(reserva.getDataHoraRetirada()));
 			ps.setInt(4, reserva.getUsuario().getId());
 			ps.setInt(5, reserva.getExemplar().getNumRegistro());
@@ -95,7 +95,7 @@ public class ReservaDAO {
 					+ " WHERE reserva_id = ?";
 			PreparedStatement ps = connection.prepareStatement(sql);
 			ps.setString(1, TemporalUtil.getDbDateTime(reserva.getDataHora()));
-			ps.setString(2, TemporalUtil.getDbDate(reserva.getDataHoraLimite()));
+			ps.setString(2, TemporalUtil.getDbDate(reserva.getDataLimite()));
 			ps.setString(3, TemporalUtil.getDbDateTime(reserva.getDataHoraRetirada()));
 			ps.setInt(4, reserva.getUsuario().getId());
 			ps.setInt(5, reserva.getExemplar().getNumRegistro());
@@ -264,13 +264,16 @@ public class ReservaDAO {
 
 	public void disponibilizaExpiradas(){
 		List<Reserva> list = getListExpiradas();
-		ExemplarDAO dao = new ExemplarDAO(connection);
+		ExemplarDAO exemplarDao = new ExemplarDAO(connection);
+		ReservaDAO reservaDAO = new ReservaDAO(connection);
 		for (Reserva reserva : list) {
 			Exemplar exemplar = reserva.getExemplar();
 			if (exemplar.getSituacao().equals(Situacao.RESERVADO)){
 				exemplar.setSituacao(Situacao.DISPONIVEL);
+				reserva.setCancelada(true);
 				try {
-					dao.update(exemplar);
+					exemplarDao.update(exemplar);
+					reservaDAO.update(reserva);
 				} catch (ValidationException e) {
 					throw new RuntimeException(e.getMessage());
 				}
@@ -278,4 +281,65 @@ public class ReservaDAO {
 		}
 	}
 	
+	public Reserva getLastReserva(Exemplar exemplar){
+		try {
+			String sql = getSelectSql("e.num_registro = ? AND r.data_hora_retirada IS NULL AND r.cancelada = 0");
+			PreparedStatement ps = connection.prepareStatement(sql);
+			ps.setInt(1, exemplar.getNumRegistro());
+			ResultSet result = ps.executeQuery();
+			Reserva reserva = null;
+			if (result.last())
+				reserva = getReserva(result);
+			result.close();
+			ps.close();
+			return reserva;
+		} catch (SQLException e) {
+			throw new RuntimeException(e.getMessage(), e.getCause());
+		}
+	}
+	
+	public List<Reserva> getList(LocalDate dataIni, LocalDate dataFim){
+    	try {
+            String sql = getSelectSql("data_hora >= ? AND data_hora < ?");
+            PreparedStatement ps = connection.prepareStatement(sql);
+            ps.setString(1, TemporalUtil.getDbDate(dataIni));
+            ps.setString(2, TemporalUtil.getDbDate(dataFim));
+            ResultSet result = ps.executeQuery();
+            List<Reserva> list = new ArrayList<>();
+            while (result.next())
+                list.add(getReserva(result));
+            result.close();
+            ps.close();
+            for (Reserva reserva : list) {
+            	LivroDAO livroDAO = new LivroDAO(connection);
+				livroDAO.setAutores(reserva.getExemplar().getLivro());
+			}
+            return list;
+        } catch (SQLException e) {
+            throw new RuntimeException(e.getMessage(), e.getCause());
+        }
+    }
+    
+    public List<Reserva> findList(LocalDate dataIni, LocalDate dataFim, String text){
+    	try {
+            String sql = getSelectSql("data_hora >= ? AND data_hora < ? AND UPPER(u.nome) like ?");
+            PreparedStatement ps = connection.prepareStatement(sql);
+            ps.setString(1, TemporalUtil.getDbDate(dataIni));
+            ps.setString(2, TemporalUtil.getDbDate(dataFim));
+            ps.setString(3, "%"+text.toUpperCase()+"%");
+            ResultSet result = ps.executeQuery();
+            List<Reserva> list = new ArrayList<>();
+            while (result.next())
+                list.add(getReserva(result));
+            result.close();
+            ps.close();
+            for (Reserva reserva : list) {
+            	LivroDAO livroDAO = new LivroDAO(connection);
+				livroDAO.setAutores(reserva.getExemplar().getLivro());
+			}
+            return list;
+        } catch (SQLException e) {
+            throw new RuntimeException(e.getMessage(), e.getCause());
+        }
+    }
 }

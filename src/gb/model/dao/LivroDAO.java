@@ -262,8 +262,8 @@ public class LivroDAO {
             List<Livro> list = new ArrayList<>();
             while (result.next()){
             	Livro livro = getLivro(result);
-            	AutorDAO autorDao = new AutorDAO(connection);
                 CategoriaDAO categoriaDAO = new CategoriaDAO(connection);
+                AutorDAO autorDao = new AutorDAO(connection);
                 livro.setAutores(autorDao.getList(livro));
                 livro.setCategorias(categoriaDAO.getCategorias(livro));
                 ExemplarDAO exemplarDAO = new ExemplarDAO(connection);
@@ -417,6 +417,12 @@ public class LivroDAO {
     
     public List<Livro> findList(List<Autor> autores){
     	return findList(null, null, autores, null);
+    }
+    
+    protected void setAutores(Livro livro){
+    	AutorDAO autorDAO = new AutorDAO(connection);
+    	List<Autor> list = autorDAO.getList(livro.getId());
+    	livro.setAutores(list);
     }
 
 }

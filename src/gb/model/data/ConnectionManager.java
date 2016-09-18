@@ -17,7 +17,7 @@ public class ConnectionManager {
 	 */
 	public static Connection getConnection(){
 		try {
-			return DriverManager.getConnection(URL,"root","admin");
+			return DriverManager.getConnection(URL,"root","");
 		}  catch (SQLException e) {
 			e.printStackTrace();
 		}
@@ -71,4 +71,77 @@ public class ConnectionManager {
 		stmt.close();
 		return id;
 	}
+	
+	public static void limpaDb(){
+		Connection connection = getConnection();
+		disableAutoCommit(connection);
+		try {
+			String sql = "SELECT DISTINCT editora_id FROM livro WHERE editora_id IS NOT NULL";
+			Statement stmt = connection.createStatement();
+			ResultSet result = stmt.executeQuery(sql);
+			StringBuilder builder = new StringBuilder();
+			builder.append("DELETE FROM editora WHERE editora_id NOT IN(");
+			int count = 0;
+			while (result.next()){
+				if (count > 0)
+					builder.append(", ");
+				builder.append(result.getInt(1));
+				count++;
+			}
+			result.close();
+			stmt.close();
+			builder.append(")");
+			if (count > 0){
+				sql = builder.toString();
+				stmt = connection.createStatement();
+				stmt.executeUpdate(sql);
+				stmt.close();
+			}
+			sql = "SELECT DISTINCT categoria_id FROM categoria_livro";
+			stmt = connection.createStatement();
+			result = stmt.executeQuery(sql);
+			builder = new StringBuilder();
+			builder.append("DELETE FROM categoria WHERE categoria_id NOT IN(");
+			count = 0;
+			while (result.next()){
+				if (count > 0)
+					builder.append(", ");
+				builder.append(result.getInt(1));
+				count++;
+			}
+			builder.append(")");
+			if (count > 0){
+				sql = builder.toString();
+				stmt = connection.createStatement();
+				stmt.executeUpdate(sql);
+				stmt.close();
+			}
+			sql = "SELECT DISTINCT origem_id FROM exemplar";
+			stmt = connection.createStatement();
+			result = stmt.executeQuery(sql);
+			builder = new StringBuilder();
+			builder.append("DELETE FROM origem WHERE origem_id NOT IN(");
+			count = 0;
+			while (result.next()){
+				if (count > 0)
+					builder.append(", ");
+				builder.append(result.getInt(1));
+				count++;
+			}
+			builder.append(")");
+			if (count > 0){
+				sql = builder.toString();
+				stmt = connection.createStatement();
+				stmt.executeUpdate(sql);
+				stmt.close();
+			}
+		} catch (SQLException e) {
+			rollback(connection);
+			closeConnection(connection);
+			throw new RuntimeException(e.getMessage());
+		}
+		commit(connection);
+		closeConnection(connection);
+	}
+	
 }

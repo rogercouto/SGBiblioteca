@@ -197,7 +197,7 @@ public class EnderecoDAO {
 	
 	public List<Cidade> findCidades(String nome){
 		try {
-			String sql = "SELECT * FROM cidade c INNER JOIN estado e ON c.sigla_estado  = e.sigla_estado WHERE nome LIKE ?";
+			String sql = "SELECT * FROM cidade c INNER JOIN estado e ON c.sigla_estado  = e.sigla_estado WHERE c.nome LIKE ?";
 			PreparedStatement ps = connection.prepareStatement(sql);
 			ps.setString(1, "%"+nome+"%");
 			ResultSet result = ps.executeQuery();
@@ -205,10 +205,10 @@ public class EnderecoDAO {
 			while (result.next()){
 				Cidade cidade = new Cidade();
 				cidade.setId(result.getInt("cidade_id"));
-				cidade.setNome(result.getString("nome"));
+				cidade.setNome(result.getString("c.nome"));
 				Estado estado = new Estado();
 				estado.setSigla(result.getString("e.sigla_estado"));
-				estado.setNome(result.getString("nome_estado"));
+				estado.setNome(result.getString("e.nome"));
 				cidade.setEstado(estado);
 				list.add(cidade);
 			}

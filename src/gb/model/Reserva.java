@@ -14,6 +14,8 @@ public class Reserva {
 	private LocalDate dataLimite;
 	private LocalDateTime dataHoraRetirada;
 	private boolean cancelada = false;
+	//Transient
+	private String status = "Pendente";
 
 	public Reserva() {
 		super();
@@ -43,7 +45,7 @@ public class Reserva {
 		this.dataHora = dataHora;
 	}
 
-	public LocalDate getDataHoraLimite() {
+	public LocalDate getDataLimite() {
 		return dataLimite;
 	}
 
@@ -57,6 +59,8 @@ public class Reserva {
 
 	public void setDataHoraRetirada(LocalDateTime dataHoraRetirada) {
 		this.dataHoraRetirada = dataHoraRetirada;
+		if (dataHoraRetirada != null)
+			status = "Concluída";
 	}
 
 	public Exemplar getExemplar() {
@@ -73,6 +77,11 @@ public class Reserva {
 
 	public void setCancelada(boolean cancelada) {
 		this.cancelada = cancelada;
+		if (cancelada)
+			status = "Expirada";
 	}
 
+	public String getStatus() {
+		return status;
+	}
 }

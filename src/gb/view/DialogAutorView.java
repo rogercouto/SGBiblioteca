@@ -12,6 +12,9 @@ import org.eclipse.swt.layout.GridData;
 import org.eclipse.swt.widgets.Text;
 import org.eclipse.swt.widgets.Button;
 import org.eclipse.wb.swt.SWTResourceManager;
+
+import swt.cw.util.Screen;
+
 import org.eclipse.swt.events.SelectionAdapter;
 import org.eclipse.swt.events.SelectionEvent;
 
@@ -90,6 +93,7 @@ public class DialogAutorView extends Dialog {
 		});
 		btnSalvar.setImage(SWTResourceManager.getImage(DialogAutorView.class, "/img/ic_save_black_24dp.png"));
 		btnSalvar.setText("Salvar");
+		Screen.centralize(shell, getParent());
 	}
 
 	protected void btnSalvarWidgetSelected(SelectionEvent arg0) {

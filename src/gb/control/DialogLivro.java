@@ -86,6 +86,13 @@ public class DialogLivro extends DialogLivroView {
 		Customizer.setNumeric(txtISBN, 0);
 		Customizer.setNumeric(txtNumPag, 0);
 		Customizer.setTemporal(txtDataPublicacao, "dd/MM/yyyy");
+		tableExemplares.addColumn("numRegistro", "Nº");
+		tableExemplares.addColumn("dataAquisicao", "Data aquisição");
+		tableExemplares.addColumn("secao.descricao", "Seçao");
+		//tableExemplares.addColumn("descrSituacao", "Situacao");
+		tableExemplares.setWidth(0, 60);
+		tableExemplares.setWidth(1, 120);
+		tableExemplares.setWidth(2, 120);
 		//Preenche os campos do formulário
 		if (livro.getId() != null){
 			txtTitulo.setText(livro.getTitulo());
@@ -128,16 +135,8 @@ public class DialogLivro extends DialogLivroView {
 			for (Categoria categoria : livro.getCategorias()) {
 				lstCategorias.add(categoria.getDescricao());
 			}
-			tableExemplares.addColumn("numRegistro", "Nº");
-			tableExemplares.addColumn("dataAquisForm", "Data aquisição");
-			tableExemplares.addColumn("descrSecao", "Seçao");
-			tableExemplares.addColumn("descrSituacao", "Situacao");
-			tableExemplares.setWidth(0, 60);
-			tableExemplares.setWidth(1, 120);
-			tableExemplares.setWidth(2, 120);
 			ExemplarDAO dao = new ExemplarDAO(connection);
 			tableExemplares.setData(dao.getList(livro));
-			
 		}
 		resetComboCategorias();
 		ConnectionManager.closeConnection(connection);
@@ -179,6 +178,7 @@ public class DialogLivro extends DialogLivroView {
 		dialogAutores.addColumn("nomeCompleto", "Nome", true);
 		dialogAutores.setFindText(txtBuscaAutor.getText());
 		dialogAutores.setIcons(Main.ICONS);
+		dialogAutores.setWidth(0, 400);
 		dialogAutores.setFindSource(new FindSource() {
 			@Override
 			public List<?> getList(int index, String text) {
@@ -464,8 +464,10 @@ public class DialogLivro extends DialogLivroView {
 		if (verificaEstado()){
 			DialogExemplar dialog = new DialogExemplar(shell, livro);
 			Exemplar exemplar = (Exemplar)dialog.open();
-			if (exemplar != null)
+			if (exemplar != null){
 				tableExemplares.add(exemplar);
+				livro.incNumExemplares();
+			}
 		}
 	}
 	
@@ -488,6 +490,7 @@ public class DialogLivro extends DialogLivroView {
 			try {
 				dao.delete(exemplar);
 				tableExemplares.remove(index);
+				livro.decNumExemplares();
 			} catch (ValidationException e) {
 				Dialog.error(shell, e.getMessage());
 			}

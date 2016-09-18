@@ -6,6 +6,7 @@ public class Autor {
 	private String nome;
 	private String sobrenome;
 	private String info;
+	
 	private String nomeCompleto;
 	
 	public Autor() {

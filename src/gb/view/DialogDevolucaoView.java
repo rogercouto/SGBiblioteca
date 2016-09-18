@@ -11,6 +11,9 @@ import org.eclipse.swt.layout.GridData;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Button;
 import org.eclipse.wb.swt.SWTResourceManager;
+
+import swt.cw.util.Screen;
+
 import org.eclipse.swt.widgets.Text;
 import org.eclipse.swt.events.KeyAdapter;
 import org.eclipse.swt.events.KeyEvent;
@@ -29,6 +32,7 @@ public class DialogDevolucaoView extends Dialog {
 	protected Button btnBuscar;
 	protected Label lblNewLabel_1;
 	protected Text txtMulta;
+	protected Text txtUsuario;
 
 	/**
 	 * Create the dialog.
@@ -61,7 +65,7 @@ public class DialogDevolucaoView extends Dialog {
 	 */
 	private void createContents() {
 		shell = new Shell(getParent(), getStyle());
-		shell.setSize(449, 170);
+		shell.setSize(449, 199);
 		shell.setText(getText());
 		shell.setLayout(new GridLayout(1, false));
 		group = new Group(shell, SWT.NONE);
@@ -87,7 +91,13 @@ public class DialogDevolucaoView extends Dialog {
 				btnBuscarWidgetSelected(arg0);
 			}
 		});
-		btnBuscar.setImage(SWTResourceManager.getImage(DialogDevolucaoView.class, "/img/ic_search_black_18dp.png"));
+		btnBuscar.setImage(SWTResourceManager.getImage(DialogDevolucaoView.class, "/img/find.png"));
+		Label lblUsurio = new Label(group, SWT.NONE);
+		lblUsurio.setLayoutData(new GridData(SWT.RIGHT, SWT.CENTER, false, false, 1, 1));
+		lblUsurio.setText("Usuário:   ");
+		txtUsuario = new Text(group, SWT.BORDER);
+		txtUsuario.setEditable(false);
+		txtUsuario.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, true, false, 2, 1));
 		lblNewLabel_1 = new Label(group, SWT.NONE);
 		lblNewLabel_1.setLayoutData(new GridData(SWT.RIGHT, SWT.CENTER, false, false, 1, 1));
 		lblNewLabel_1.setText("Multa:   ");
@@ -111,8 +121,9 @@ public class DialogDevolucaoView extends Dialog {
 		});
 		btnConfirma.setImage(SWTResourceManager.getImage(DialogDevolucaoView.class, "/img/ic_assignment_return_black_24dp.png"));
 		btnConfirma.setText("Confirma");
-
+		Screen.centralize(shell, getParent());
 	}
+	
 	protected void txtExemplarKeyPressed(KeyEvent arg0) {
 	}
 	protected void btnBuscarWidgetSelected(SelectionEvent arg0) {

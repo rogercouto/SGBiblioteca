@@ -13,10 +13,8 @@ import java.util.List;
 import gb.model.Exemplar;
 import gb.model.Livro;
 import gb.model.Origem;
-import gb.model.Reserva;
 import gb.model.Secao;
 import gb.model.Situacao;
-import gb.model.Usuario;
 import gb.model.data.ConnectionManager;
 import gb.model.exceptions.ValidationException;
 import gb.util.TemporalUtil;
@@ -208,6 +206,10 @@ public class ExemplarDAO {
 				exemplar = getExemplar(result);
 			result.close();
 			ps.close();
+			if (exemplar != null && exemplar.getLivro() != null){
+				LivroDAO livroDAO = new LivroDAO(connection);
+				livroDAO.setAutores(exemplar.getLivro());
+			}
 			return exemplar;
 		} catch (SQLException e) {
 			throw new RuntimeException(e.getMessage(), e.getCause());
@@ -224,95 +226,54 @@ public class ExemplarDAO {
 				list.add(getExemplar(result));
 			result.close();
 			stmt.close();
+			for (Exemplar exemplar : list) {
+				if (exemplar.getLivro() != null){
+					LivroDAO livroDAO = new LivroDAO(connection);
+					livroDAO.setAutores(exemplar.getLivro());
+				}
+			}
 			return list;
 		} catch (SQLException e) {
 			throw new RuntimeException(e.getMessage(), e.getCause());
 		}
 	}
 	
-	private List<Exemplar> findListNaoFixo(int numRegistro){
+	public List<Exemplar> getList(boolean fixo, Situacao[] situacoes){
 		try {
-			String sql = getSelectSql("e.fixo = 0 AND numRegistro = ?");
+			StringBuilder builder = new StringBuilder();
+			builder.append(getSelectSql());
+			builder.append(" WHERE");
+			builder.append(" e.fixo = ?");
+			if (situacoes.length > 0){
+				builder.append(" AND situacao IN(");
+				for (int i = 0; i < situacoes.length; i++) {
+					if (i > 0)
+						builder.append(", ");
+					builder.append(situacoes[i].getValue());
+				}
+				builder.append(")");
+			}
+			String sql = builder.toString();;
 			PreparedStatement ps = connection.prepareStatement(sql);
-			ps.setInt(1, numRegistro);
+			ps.setBoolean(1, fixo);
 			ResultSet result = ps.executeQuery();
 			List<Exemplar> list = new ArrayList<>();;
 			while (result.next())
 				list.add(getExemplar(result));
 			result.close();
 			ps.close();
+			for (Exemplar exemplar : list) {
+				if (exemplar.getLivro() != null){
+					LivroDAO livroDAO = new LivroDAO(connection);
+					livroDAO.setAutores(exemplar.getLivro());
+				}
+			}
 			return list;
 		} catch (SQLException e) {
 			throw new RuntimeException(e.getMessage(), e.getCause());
 		}
 	}
 	
-	private List<Exemplar> getListDisponivel(){
-		try {
-			String sql = getSelectSql("e.fixo = 0 AND situacao = 1");
-			Statement stmt = connection.createStatement();
-			ResultSet result = stmt.executeQuery(sql);
-			List<Exemplar> list = new ArrayList<>();;
-			while (result.next())
-				list.add(getExemplar(result));
-			result.close();
-			stmt.close();
-			return list;
-		} catch (SQLException e) {
-			throw new RuntimeException(e.getMessage(), e.getCause());
-		}
-	}
-	
-	private List<Exemplar> getListEmprestado(){
-		try {
-			String sql = getSelectSql("e.fixo = 0 AND situacao = 3");
-			Statement stmt = connection.createStatement();
-			ResultSet result = stmt.executeQuery(sql);
-			List<Exemplar> list = new ArrayList<>();;
-			while (result.next())
-				list.add(getExemplar(result));
-			result.close();
-			stmt.close();
-			return list;
-		} catch (SQLException e) {
-			throw new RuntimeException(e.getMessage(), e.getCause());
-		}
-	}
-	
-	private List<Exemplar> findListDisponivel(int numRegistro){
-		try {
-			String sql = getSelectSql("e.fixo = 0 AND situacao = 1 AND numRegistro = ?");
-			PreparedStatement ps = connection.prepareStatement(sql);
-			ps.setInt(1, numRegistro);
-			ResultSet result = ps.executeQuery();
-			List<Exemplar> list = new ArrayList<>();;
-			while (result.next())
-				list.add(getExemplar(result));
-			result.close();
-			ps.close();
-			return list;
-		} catch (SQLException e) {
-			throw new RuntimeException(e.getMessage(), e.getCause());
-		}
-	}
-	
-	private List<Exemplar> findListEmprestado(int numRegistro){
-		try {
-			String sql = getSelectSql("e.fixo = 0 AND situacao = 1 AND numRegistro = ?");
-			PreparedStatement ps = connection.prepareStatement(sql);
-			ps.setInt(1, numRegistro);
-			ResultSet result = ps.executeQuery();
-			List<Exemplar> list = new ArrayList<>();;
-			while (result.next())
-				list.add(getExemplar(result));
-			result.close();
-			ps.close();
-			return list;
-		} catch (SQLException e) {
-			throw new RuntimeException(e.getMessage(), e.getCause());
-		}
-	}
-
 	public List<Exemplar> getList(Livro livro){
 		try {
 			String sql = getSelectSql("e.livro_id = ?");
@@ -324,18 +285,16 @@ public class ExemplarDAO {
 				list.add(getExemplar(result));
 			result.close();
 			ps.close();
+			for (Exemplar exemplar : list) {
+				if (exemplar.getLivro() != null){
+					LivroDAO livroDAO = new LivroDAO(connection);
+					livroDAO.setAutores(exemplar.getLivro());
+				}
+			}
 			return list;
 		} catch (SQLException e) {
 			throw new RuntimeException(e.getMessage(), e.getCause());
 		}
-	}
-
-	private static boolean isIn(Exemplar exemplar, List<Reserva> reservas){
-		for (Reserva reserva : reservas) {
-			if (exemplar.getNumRegistro().intValue() == reserva.getExemplar().getNumRegistro().intValue())
-				return true;
-		}
-		return false;
 	}
 	
 	private static boolean isNumeric(String string){
@@ -347,82 +306,69 @@ public class ExemplarDAO {
 		return true;
 	}
 	
-	private List<Exemplar> getDisp(List<Exemplar> fullList, List<Reserva> resList){
-		List<Exemplar> list = new ArrayList<>();
-		for (Exemplar exemplar : fullList) {
-			if (exemplar.getSituacao().equals(Situacao.DISPONIVEL) || 
-			(exemplar.getSituacao().equals(Situacao.RESERVADO) &&	isIn(exemplar, resList)))
-			{
+	private boolean isIn(Exemplar exemplar, Situacao[] situacoes){
+		for (Situacao situacao : situacoes) {
+			if (exemplar.getSituacao().equals(situacao))
+				return true;
+		}
+		return false;
+	}
+	
+	public List<Exemplar> findList(int index, String text, Situacao[] situacoes){
+		if (text.trim().length() == 0){
+			return getList(false, situacoes);
+		}else{
+			if (index == 0){
+				if (isNumeric(text)){
+					Exemplar exemplar = get(Integer.parseInt(text));
+					List<Exemplar> list = new ArrayList<>();
+					if (exemplar != null && isIn(exemplar, situacoes)){
+						list.add(exemplar);
+					}
+					return list;
+				}
+			}else if (index == 1){
+				LivroDAO livroDAO = new LivroDAO(connection);
+				List<Livro> livros = livroDAO.findList("titulo", text);
+				List<Exemplar> result = new ArrayList<>();
+				for (Livro livro : livros) {
+					for (Exemplar exemplar : livro.getExemplares()) {
+						if (isIn(exemplar, situacoes))
+							result.add(exemplar);
+					}
+				}
+				Collections.sort(result, new Comparator<Exemplar>() {
+					@Override
+					public int compare(Exemplar e1, Exemplar e2) {
+						return e1.getNumRegistro().compareTo(e2.getNumRegistro());
+					}
+				});
+				return result;
+			}
+		}
+		return null;
+	}
+	
+	public List<Exemplar> findList(int index, String text, Situacao situacao){
+		return findList(index, text, new Situacao[]{situacao});
+	}
+	
+	public List<Exemplar> findList(String text){
+		if (text.trim().length() == 0){
+			return getList();
+		}else{
+			if (isNumeric(text)){
+				Exemplar exemplar = get(Integer.parseInt(text));
+				List<Exemplar> list = new ArrayList<>();
 				list.add(exemplar);
-			}
-		}
-		return list;
-	}
-	
-	public List<Exemplar> findFromDialogEmprestimo(int index, String text, Usuario usuario){
-		ReservaDAO dao = new ReservaDAO(connection);
-		List<Reserva> reservas = null;
-		if (usuario != null)
-			reservas = dao.getList(usuario);
-		if (text.trim().length() == 0){
-			if (usuario == null){
-				return getListDisponivel();
+				return list;
 			}else{
-				return getDisp(getList(), reservas);
-			}
-		}else{
-			if (index == 0){
-				if (isNumeric(text)){
-					if (usuario == null){
-						return findListDisponivel(Integer.parseInt(text));
-					}else{
-						return getDisp(findListNaoFixo(Integer.parseInt(text)), reservas);
-					}
-				}
-			}else if (index == 1){
-				LivroDAO livroDAO = new LivroDAO(connection);
-				List<Livro> livros = livroDAO.findList("titulo", text);
-				List<Exemplar> result = new ArrayList<>();
-				if (usuario == null){
-					for (Livro livro : livros) {
-						for (Exemplar exemplar : livro.getExemplares()) {
-							if (!exemplar.getFixo() && exemplar.getSituacao() == Situacao.DISPONIVEL)
-								result.add(exemplar);
-						}
-					}
-				}else{
-					for (Livro livro : livros) {
-						result.addAll(getDisp(livro.getExemplares(), reservas));
-					}
-				}
-				Collections.sort(result, new Comparator<Exemplar>() {
-					@Override
-					public int compare(Exemplar e1, Exemplar e2) {
-						return e1.getNumRegistro().compareTo(e2.getNumRegistro());
-					}
-				});
-				return result;
-			}
-		}
-		return new ArrayList<>();
-	}
-	
-	public List<Exemplar> findFromDialogReserva(int index, String text){
-		if (text.trim().length() == 0){
-			return getListDisponivel();
-		}else{
-			if (index == 0){
-				if (isNumeric(text)){
-					return findListDisponivel(Integer.parseInt(text));
-				}
-			}else if (index == 1){
 				LivroDAO livroDAO = new LivroDAO(connection);
 				List<Livro> livros = livroDAO.findList("titulo", text);
 				List<Exemplar> result = new ArrayList<>();
 				for (Livro livro : livros) {
 					for (Exemplar exemplar : livro.getExemplares()) {
-						if (!exemplar.getFixo() && exemplar.getSituacao() == Situacao.DISPONIVEL)
-							result.add(exemplar);
+						result.add(exemplar);
 					}
 				}
 				Collections.sort(result, new Comparator<Exemplar>() {
@@ -434,37 +380,6 @@ public class ExemplarDAO {
 				return result;
 			}
 		}
-		return new ArrayList<>();
-	}
-	
-	public List<Exemplar> findFromDialogDevolucao(int index, String text){
-		if (text.trim().length() == 0){
-			return getListEmprestado();
-		}else{
-			if (index == 0){
-				if (isNumeric(text)){
-					return findListEmprestado(Integer.parseInt(text));
-				}
-			}else if (index == 1){
-				LivroDAO livroDAO = new LivroDAO(connection);
-				List<Livro> livros = livroDAO.findList("titulo", text);
-				List<Exemplar> result = new ArrayList<>();
-				for (Livro livro : livros) {
-					for (Exemplar exemplar : livro.getExemplares()) {
-						if (exemplar.getSituacao() == Situacao.EMPRESTADO)
-							result.add(exemplar);
-					}
-				}
-				Collections.sort(result, new Comparator<Exemplar>() {
-					@Override
-					public int compare(Exemplar e1, Exemplar e2) {
-						return e1.getNumRegistro().compareTo(e2.getNumRegistro());
-					}
-				});
-				return result;
-			}
-		}
-		return new ArrayList<>();
 	}
 	
 }

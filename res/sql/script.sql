@@ -20,7 +20,7 @@ CREATE TABLE editora(
 CREATE TABLE livro(
 	livro_id INTEGER NOT NULL PRIMARY KEY AUTO_INCREMENT,
 	titulo VARCHAR(200) NOT NULL,
-	resumo TEXT NOT NULL,
+	resumo TEXT,
 	isbn INTEGER,
 	cutter VARCHAR(20),
 	editora_id INTEGER,
@@ -93,7 +93,7 @@ ALTER TABLE baixa ADD CONSTRAINT fk_exemplar_baixa FOREIGN KEY(num_registro) REF
 
 CREATE TABLE estado(
 	sigla_estado VARCHAR(3) NOT NULL PRIMARY KEY,
-	nome_estado VARCHAR(100) NOT NULL
+	nome VARCHAR(100) NOT NULL
 );
 
 CREATE TABLE cidade(
@@ -146,9 +146,9 @@ CREATE TABLE reserva(
     num_registro INTEGER NOT NULL,
     usuario_id INTEGER NOT NULL,
     data_hora TIMESTAMP NOT NULL,
-    data_hora DATE NOT NULL,
+    data_limite DATE NOT NULL,
     data_hora_retirada DATETIME,
-    cancelada TINYINT NOT NULL DEFAULT 0,
+    cancelada BOOL NOT NULL DEFAULT 0
 );
 
 ALTER TABLE reserva ADD CONSTRAINT fk_exemplar_reserva FOREIGN KEY(num_registro) REFERENCES exemplar(num_registro) ON UPDATE CASCADE;

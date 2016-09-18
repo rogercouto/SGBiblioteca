@@ -26,6 +26,8 @@ import org.eclipse.swt.widgets.ToolItem;
 import org.eclipse.wb.swt.SWTResourceManager;
 
 import swt.cw.table.DataViwer;
+import swt.cw.util.Screen;
+
 import org.eclipse.swt.events.ModifyListener;
 import org.eclipse.swt.events.ModifyEvent;
 import org.eclipse.swt.events.TraverseListener;
@@ -242,7 +244,7 @@ public class DialogLivroView extends Dialog {
 				btnBuscaAutorWidgetSelected(arg0);
 			}
 		});
-		btnBuscaAutor.setImage(SWTResourceManager.getImage(DialogLivroView.class, "/img/ic_search_black_18dp.png"));
+		btnBuscaAutor.setImage(SWTResourceManager.getImage(DialogLivroView.class, "/img/find.png"));
 		Label lblNewLabel_14 = new Label(tab2, SWT.NONE);
 		lblNewLabel_14.setLayoutData(new GridData(SWT.RIGHT, SWT.CENTER, false, false, 1, 1));
 		lblNewLabel_14.setText("Autores:   ");
@@ -413,6 +415,7 @@ public class DialogLivroView extends Dialog {
 				tableExemplaresKeyDownEvent(arg0);
 			}
 		});
+		Screen.centralize(shell, getParent());
 	}
 	
 	protected void lstAutoresWidgetSelected(SelectionEvent arg0) {}

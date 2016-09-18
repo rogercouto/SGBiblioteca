@@ -68,6 +68,8 @@ public class DialogExemplar extends DialogExemplarView {
 				cmbOrigem.select(origens.indexOf(origem));
 		}
 		chkFixo.setSelection(exemplar.getFixo());
+		if (!exemplar.getSituacao().equals(Situacao.DISPONIVEL))
+			chkFixo.setEnabled(false);
 		txtSituacao.setText(exemplar.getSituacao().name());		
 		Customizer.setNumeric(txtNum, 0);
 		if (update)

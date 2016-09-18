@@ -14,6 +14,9 @@ import org.eclipse.swt.widgets.Combo;
 import org.eclipse.swt.widgets.DateTime;
 import org.eclipse.swt.widgets.Text;
 import org.eclipse.wb.swt.SWTResourceManager;
+
+import swt.cw.util.Screen;
+
 import org.eclipse.swt.events.SelectionAdapter;
 import org.eclipse.swt.events.SelectionEvent;
 
@@ -110,6 +113,7 @@ public class DialogExemplarView extends Dialog {
 		});
 		btnSalvar.setImage(SWTResourceManager.getImage(DialogExemplarView.class, "/img/ic_save_black_24dp.png"));
 		btnSalvar.setText("Salvar");
+		Screen.centralize(shell, getParent());
 	}
 
 	protected void btnSalvarWidgetSelected(SelectionEvent arg0) {

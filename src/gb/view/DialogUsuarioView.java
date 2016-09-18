@@ -11,6 +11,9 @@ import org.eclipse.swt.layout.GridData;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Button;
 import org.eclipse.wb.swt.SWTResourceManager;
+
+import swt.cw.util.Screen;
+
 import org.eclipse.swt.widgets.Text;
 import org.eclipse.swt.widgets.Combo;
 import org.eclipse.swt.events.SelectionAdapter;
@@ -165,7 +168,7 @@ public class DialogUsuarioView extends Dialog {
 				btnCidadeWidgetSelected(arg0);
 			}
 		});
-		btnCidade.setImage(SWTResourceManager.getImage(DialogUsuarioView.class, "/img/ic_search_black_18dp.png"));
+		btnCidade.setImage(SWTResourceManager.getImage(DialogUsuarioView.class, "/img/find.png"));
 		Label lblNewLabel_9 = new Label(grpEndereo, SWT.NONE);
 		lblNewLabel_9.setLayoutData(new GridData(SWT.RIGHT, SWT.CENTER, false, false, 1, 1));
 		lblNewLabel_9.setText("Bairro:");
@@ -201,6 +204,7 @@ public class DialogUsuarioView extends Dialog {
 		});
 		btnSalvar.setImage(SWTResourceManager.getImage(DialogUsuarioView.class, "/img/ic_save_black_24dp.png"));
 		btnSalvar.setText("Salvar");
+		Screen.centralize(shell, getParent());
 	}
 
 	protected void btnCidadeWidgetSelected(SelectionEvent arg0) {

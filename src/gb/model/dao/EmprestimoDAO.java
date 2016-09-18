@@ -5,6 +5,7 @@ import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
+import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -157,7 +158,7 @@ public class EmprestimoDAO {
         builder.append(" LEFT OUTER JOIN endereco en ON u.endereco_id = en.endereco_id");
         builder.append(" LEFT OUTER JOIN cidade ci ON en.cidade_id = ci.cidade_id");
         builder.append(" LEFT OUTER JOIN estado es ON ci.sigla_estado = es.sigla_estado");
-        builder.append(" INNER JOIN exemplar e ON e.num_registro = e.num_registro");
+        builder.append(" INNER JOIN exemplar e ON em.num_registro = e.num_registro");
         builder.append(" INNER JOIN livro l ON e.livro_id = l.livro_id");
         builder.append(" LEFT OUTER JOIN editora ed ON l.editora_id = ed.editora_id");
         builder.append(" LEFT OUTER JOIN assunto a ON l.assunto_id = a.assunto_id");
@@ -198,6 +199,8 @@ public class EmprestimoDAO {
                 emprestimo = getEmprestimo(result);
             result.close();
             ps.close();
+            LivroDAO livroDAO = new LivroDAO(connection);
+			livroDAO.setAutores(emprestimo.getExemplar().getLivro());
             return emprestimo;
         } catch (SQLException e) {
             throw new RuntimeException(e.getMessage(), e.getCause());
@@ -211,9 +214,13 @@ public class EmprestimoDAO {
             ResultSet result = s.executeQuery(sql);
             List<Emprestimo> list = new ArrayList<>();
             while (result.next())
-                list.add(getEmprestimo(result));
+            	list.add(getEmprestimo(result));
             result.close();
             s.close();
+            for (Emprestimo emprestimo : list) {
+				LivroDAO livroDAO = new LivroDAO(connection);
+				livroDAO.setAutores(emprestimo.getExemplar().getLivro());
+			}
             return list;
         } catch (SQLException e) {
             throw new RuntimeException(e.getMessage(), e.getCause());
@@ -231,6 +238,10 @@ public class EmprestimoDAO {
                 list.add(getEmprestimo(result));
             result.close();
             ps.close();
+            for (Emprestimo emprestimo : list) {
+            	LivroDAO livroDAO = new LivroDAO(connection);
+				livroDAO.setAutores(emprestimo.getExemplar().getLivro());
+			}
             return list;
         } catch (SQLException e) {
             throw new RuntimeException(e.getMessage(), e.getCause());
@@ -239,18 +250,66 @@ public class EmprestimoDAO {
     
     public Emprestimo getLastEmprestimo(Exemplar exemplar){
     	try {
-    		String sql = getSelectSql("situacao = 3 AND data_hora_devolucao IS NULL");
+    		String sql = getSelectSql("situacao = ? AND data_hora_devolucao IS NULL");
             PreparedStatement ps = connection.prepareStatement(sql);
+            ps.setInt(1, Situacao.EMPRESTADO.getValue());
             ResultSet result = ps.executeQuery();
             Emprestimo emprestimo = null;
-            while (result.next())
+            if (result.last())
                 emprestimo = getEmprestimo(result);
             result.close();
             ps.close();
+            LivroDAO livroDAO = new LivroDAO(connection);
+			livroDAO.setAutores(emprestimo.getExemplar().getLivro());
             return emprestimo;
         } catch (SQLException e) {
             throw new RuntimeException(e.getMessage(), e.getCause());
         }
     }
 
+    public List<Emprestimo> getList(LocalDate dataIni, LocalDate dataFim){
+    	try {
+            String sql = getSelectSql("data_hora >= ? AND data_hora < ?");
+            PreparedStatement ps = connection.prepareStatement(sql);
+            ps.setString(1, TemporalUtil.getDbDate(dataIni));
+            ps.setString(2, TemporalUtil.getDbDate(dataFim));
+            ResultSet result = ps.executeQuery();
+            List<Emprestimo> list = new ArrayList<>();
+            while (result.next())
+                list.add(getEmprestimo(result));
+            result.close();
+            ps.close();
+            for (Emprestimo emprestimo : list) {
+            	LivroDAO livroDAO = new LivroDAO(connection);
+				livroDAO.setAutores(emprestimo.getExemplar().getLivro());
+			}
+            return list;
+        } catch (SQLException e) {
+            throw new RuntimeException(e.getMessage(), e.getCause());
+        }
+    }
+    
+    public List<Emprestimo> findList(LocalDate dataIni, LocalDate dataFim, String text){
+    	try {
+            String sql = getSelectSql("data_hora >= ? AND data_hora < ? AND UPPER(u.nome) like ?");
+            PreparedStatement ps = connection.prepareStatement(sql);
+            ps.setString(1, TemporalUtil.getDbDate(dataIni));
+            ps.setString(2, TemporalUtil.getDbDate(dataFim));
+            ps.setString(3, "%"+text.toUpperCase()+"%");
+            ResultSet result = ps.executeQuery();
+            List<Emprestimo> list = new ArrayList<>();
+            while (result.next())
+                list.add(getEmprestimo(result));
+            result.close();
+            ps.close();
+            for (Emprestimo emprestimo : list) {
+            	LivroDAO livroDAO = new LivroDAO(connection);
+				livroDAO.setAutores(emprestimo.getExemplar().getLivro());
+			}
+            return list;
+        } catch (SQLException e) {
+            throw new RuntimeException(e.getMessage(), e.getCause());
+        }
+    }
+    
 }

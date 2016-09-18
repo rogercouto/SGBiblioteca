@@ -44,13 +44,14 @@ public class DialogDevolucao extends DialogDevolucaoView{
 		FindDialog dialog = new FindDialog(shell);
 		dialog.setText("Buscar exemplar");
 		dialog.addColumn("numRegistro", "Nº", true);
-		dialog.addColumn("tituloLivro", "Título", true);
+		dialog.addColumn("livro.titulo", "Título", true);
+		dialog.setWidth(1, 300);
 		dialog.setIcons(Main.ICONS);
 		dialog.setFindSource(new FindSource() {
 			@Override
 			public List<?> getList(int index, String text) {
 				ExemplarDAO dao = new ExemplarDAO();
-				List<Exemplar> list = dao.findFromDialogDevolucao(index, text);
+				List<Exemplar> list = dao.findList(index, text, Situacao.EMPRESTADO);
 				dao.closeConnection();
 				return list;
 			}
@@ -59,11 +60,12 @@ public class DialogDevolucao extends DialogDevolucaoView{
 		if (exemplar != null){
 			EmprestimoDAO dao = new EmprestimoDAO();
 			emprestimo = dao.getLastEmprestimo(exemplar);
-			txtExemplar.setText(exemplar.getNumRegistro()+" - "+exemplar.getTituloLivro());
+			txtExemplar.setText(exemplar.getNumRegistro()+" - "+exemplar.getLivro().getTitulo());
 			long diasAtraso = ChronoUnit.DAYS.between(emprestimo.getPrevisaoDevolucao(), LocalDate.now());
 			if (diasAtraso >= 0)
 				multa = diasAtraso*Emprestimo.MULTA_DIA;
 			txtMulta.setText(new DecimalFormat("0.00").format(multa));
+			txtUsuario.setText(emprestimo.getUsuario().getNome());
 			btnConfirma.setEnabled(true);
 		}
 	}

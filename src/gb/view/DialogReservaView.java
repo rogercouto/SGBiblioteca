@@ -12,6 +12,9 @@ import org.eclipse.swt.widgets.Label;
 import org.eclipse.swt.widgets.Shell;
 import org.eclipse.swt.widgets.Text;
 import org.eclipse.wb.swt.SWTResourceManager;
+
+import swt.cw.util.Screen;
+
 import org.eclipse.swt.events.SelectionAdapter;
 import org.eclipse.swt.events.SelectionEvent;
 import org.eclipse.swt.events.KeyAdapter;
@@ -95,7 +98,7 @@ public class DialogReservaView extends Dialog {
 				btnBuscaUsuarioWidgetSelected(arg0);
 			}
 		});
-		btnBuscaUsuario.setImage(SWTResourceManager.getImage(DialogReservaView.class, "/img/ic_search_black_18dp.png"));
+		btnBuscaUsuario.setImage(SWTResourceManager.getImage(DialogReservaView.class, "/img/find.png"));
 		lblNewLabel_1 = new Label(grpUsurio, SWT.NONE);
 		lblNewLabel_1.setLayoutData(new GridData(SWT.RIGHT, SWT.CENTER, false, false, 1, 1));
 		lblNewLabel_1.setText("Exemplar:   ");
@@ -114,7 +117,7 @@ public class DialogReservaView extends Dialog {
 				btnBuscaExemplarWidgetSelected(arg0);
 			}
 		});
-		btnBuscaExemplar.setImage(SWTResourceManager.getImage(DialogReservaView.class, "/img/ic_search_black_18dp.png"));
+		btnBuscaExemplar.setImage(SWTResourceManager.getImage(DialogReservaView.class, "/img/find.png"));
 		lblNewLabel_2 = new Label(grpUsurio, SWT.NONE);
 		lblNewLabel_2.setLayoutData(new GridData(SWT.RIGHT, SWT.CENTER, false, false, 1, 1));
 		lblNewLabel_2.setText("Data/Hora:   ");
@@ -150,6 +153,7 @@ public class DialogReservaView extends Dialog {
 		});
 		btnConfirma.setImage(SWTResourceManager.getImage(DialogReservaView.class, "/img/ic_assignment_turned_in_black_24dp.png"));
 		btnConfirma.setText("Confirma");
+		Screen.centralize(shell, getParent());
 	}
 
 	protected void btnBuscaUsuarioWidgetSelected(SelectionEvent arg0) {

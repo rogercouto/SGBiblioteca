@@ -5,7 +5,6 @@ import java.util.List;
 
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.widgets.Composite;
-import org.eclipse.wb.swt.SWTResourceManager;
 
 import gb.model.Usuario;
 import gb.model.dao.UsuarioDAO;
@@ -23,9 +22,7 @@ public class GerenciaUsuarios extends GerenciaView {
 	}
 	
 	private void initialize(){
-		lblHeader.setText(" Usuarios");
-		lblHeader.setForeground(SWTResourceManager.getColor(SWT.COLOR_WHITE));
-		lblHeader.setBackground(SWTResourceManager.getColor(SWT.COLOR_DARK_BLUE));
+		setHeader("Usuários", SWT.COLOR_WHITE, SWT.COLOR_DARK_BLUE);
 		UsuarioDAO dao = new UsuarioDAO();
 		List<Usuario> usuarios = dao.getList();
 		dao.closeConnection();

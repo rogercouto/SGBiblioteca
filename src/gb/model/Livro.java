@@ -196,6 +196,14 @@ public class Livro {
 		this.numExemplares = numExemplares;
 	}
 
+	public void incNumExemplares() {
+		this.numExemplares++;
+	}
+	
+	public void decNumExemplares() {
+		this.numExemplares--;
+	}
+	
 	public List<Exemplar> getExemplares() {
 		return exemplares;
 	}
@@ -220,6 +228,8 @@ public class Livro {
 	}
 
 	public String getNomeAutores() {
+		if (nomeAutores == null)
+			return "-";
 		return nomeAutores;
 	}
 

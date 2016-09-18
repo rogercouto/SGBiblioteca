@@ -6,10 +6,9 @@ import java.util.List;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.events.KeyEvent;
 import org.eclipse.swt.events.SelectionEvent;
-import org.eclipse.swt.graphics.Image;
 import org.eclipse.swt.widgets.Shell;
-import org.eclipse.wb.swt.SWTResourceManager;
 
+import gb.Main;
 import gb.model.Cidade;
 import gb.model.Endereco;
 import gb.model.TipoUsuario;
@@ -98,12 +97,7 @@ public class DialogUsuario extends DialogUsuarioView {
 		dialog.addColumn("nome", "Cidade", true);
 		dialog.addColumn("siglaEstado", "UF", false);
 		dialog.setWidth(0, 300);
-		dialog.setIcons(new Image[]{
-				SWTResourceManager.getImage(this.getClass(), "/img/ic_search_black_18dp.png"),
-				SWTResourceManager.getImage(this.getClass(), "/img/ic_add_circle_black_24dp.png"),
-				SWTResourceManager.getImage(this.getClass(), "/img/ic_done_black_24dp.png"),
-				SWTResourceManager.getImage(this.getClass(), "/img/ic_clear_black_24dp.png")
-		});
+		dialog.setIcons(Main.ICONS);
 		dialog.setFindSource(new FindSource() {
 			@Override
 			public List<?> getList(int index, String text) {

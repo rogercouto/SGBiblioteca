@@ -51,6 +51,7 @@ public class DialogEmprestimo extends DialogEmprestimoView {
 		dialog.setText("Buscar usuario");
 		dialog.addColumn("nome", "Nome", true);
 		dialog.setIcons(Main.ICONS);
+		dialog.setWidth(0, 400);
 		dialog.setFindSource(new FindSource() {
 			@Override
 			public List<?> getList(int index, String text) {
@@ -88,20 +89,39 @@ public class DialogEmprestimo extends DialogEmprestimoView {
 		FindDialog dialog = new FindDialog(shell);
 		dialog.setText("Buscar exemplar");
 		dialog.addColumn("numRegistro", "Nº", true);
-		dialog.addColumn("tituloLivro", "Título", true);
+		dialog.addColumn("livro.titulo", "Título", true);
 		dialog.setIcons(Main.ICONS);
+		dialog.setWidth(1, 300);
 		dialog.setFindSource(new FindSource() {
 			@Override
 			public List<?> getList(int index, String text) {
 				ExemplarDAO dao = new ExemplarDAO();
-				List<Exemplar> list = dao.findFromDialogEmprestimo(index, text, emprestimo.getUsuario());
+				List<Exemplar> list = dao.findList(index, text, new Situacao[]{Situacao.DISPONIVEL, Situacao.RESERVADO});
 				dao.closeConnection();
 				return list;
 			}
 		});
 		Exemplar exemplar = (Exemplar)dialog.open();
 		if (exemplar != null){
-			txtExemplar.setText(exemplar.getNumRegistro()+" - "+exemplar.getTituloLivro());
+			if (exemplar.getFixo()){
+				Dialog.warning(shell, "Livro não pode ser emprestado!");
+				return;
+			}
+			if (exemplar.getSituacao().equals(Situacao.RESERVADO)){
+				ReservaDAO dao = new ReservaDAO();
+				Reserva reserva = dao.getLastReserva(exemplar);
+				dao.closeConnection();
+				if (reserva != null){
+					if (emprestimo.getUsuario() == null){
+						Dialog.warning(shell, "Livro reservado!");
+						return;
+					}else if (emprestimo.getUsuario().getId().intValue() != reserva.getUsuario().getId().intValue()){
+						Dialog.warning(shell, "Livro reservado para outro usuário!");
+						return;
+					}
+				}
+			}
+			txtExemplar.setText(exemplar.getNumRegistro()+" - "+exemplar.getLivro().getTitulo());
 			emprestimo.setExemplar(exemplar);
 			txtDataHora.setFocus();
 		}

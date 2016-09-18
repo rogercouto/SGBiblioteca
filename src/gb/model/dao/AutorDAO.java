@@ -234,6 +234,7 @@ public class AutorDAO{
 		}
 		return list;
 	}
+	
 	/**
 	 * Retorna a lista de autores de um livro
 	 * @param livro
@@ -247,6 +248,30 @@ public class AutorDAO{
 					+ " WHERE livro_id = ?";
 			PreparedStatement ps = connection.prepareStatement(sql);
 			ps.setInt(1, livro.getId());
+			ResultSet result = ps.executeQuery();
+			while (result.next())
+				list.add(getAutor(result));
+			result.close();
+			ps.close();
+			return list;
+		} catch (SQLException e) {
+			throw new RuntimeException(e.getMessage(), e.getCause());
+		}
+	}
+	
+	/**
+	 * Retorna a lista de autores de um livro
+	 * @param livro
+	 * @return Lista de autores
+	 */
+	public List<Autor> getList(int livroId){
+		try {
+			List<Autor> list = new ArrayList<>();
+			String sql = "SELECT * FROM autor_livro al"
+					+ " INNER JOIN autor a ON al.autor_id = a.autor_id"
+					+ " WHERE livro_id = ?";
+			PreparedStatement ps = connection.prepareStatement(sql);
+			ps.setInt(1, livroId);
 			ResultSet result = ps.executeQuery();
 			while (result.next())
 				list.add(getAutor(result));

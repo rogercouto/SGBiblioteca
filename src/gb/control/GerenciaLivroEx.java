@@ -7,7 +7,6 @@ import java.util.List;
 
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.widgets.Composite;
-import org.eclipse.wb.swt.SWTResourceManager;
 
 import gb.model.Autor;
 import gb.model.Livro;
@@ -29,16 +28,14 @@ public class GerenciaLivroEx extends GerenciaView {
 	}
 
 	private void initialize(){
-		lblHeader.setText(" Livros/Exemplares");
-		lblHeader.setForeground(SWTResourceManager.getColor(SWT.COLOR_WHITE));
-		lblHeader.setBackground(SWTResourceManager.getColor(SWT.COLOR_DARK_CYAN));
+		setHeader("Livros/Exemplares", SWT.COLOR_WHITE, SWT.COLOR_DARK_CYAN);
 		LivroDAO dao = new LivroDAO();
 		List<Livro> livros = dao.getList();
 		dao.closeConnection();
 		regViwer.addColumn("id", "Nº", false);
 		regViwer.addColumn("titulo", "Título", true);
 		regViwer.addColumn("nomeAutores", "Autor(es)", true);
-		regViwer.addColumn("numExemplares", "Exemplares", false);
+		regViwer.addColumn("exemplares.size", "Exemplares", false);
 		regViwer.setWidth(0, 50);
 		regViwer.setWidth(1, 350);
 		regViwer.setWidth(2, 250);
