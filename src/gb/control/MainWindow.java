@@ -1,12 +1,9 @@
 package gb.control;
 
-import gb.view.Content;
 import gb.view.MainWindowView;
 
 public class MainWindow extends MainWindowView {
 
-	private Content content = null;
-	
 	public MainWindow() {
 		super();
 	}
@@ -14,6 +11,13 @@ public class MainWindow extends MainWindowView {
 	@Override
 	protected void lancaEmprestimo(){
 		new DialogEmprestimo(shell).open();
+		if (content != null)
+			content.refresh();
+	}
+	
+	@Override
+	protected void lancaRenovacao(){
+		new DialogRenovacao(shell).open();
 		if (content != null)
 			content.refresh();
 	}
@@ -28,6 +32,13 @@ public class MainWindow extends MainWindowView {
 	@Override
 	protected void lancaDevolucao(){
 		new DialogDevolucao(shell).open();
+		if (content != null)
+			content.refresh();
+	}
+	
+	@Override
+	protected void lancaPagamento(){
+		new DialogPagamento(shell).open();
 		if (content != null)
 			content.refresh();
 	}

@@ -10,6 +10,7 @@ public class Exemplar {
 	private LocalDate dataAquisicao;
 	private Origem origem;
 	private boolean fixo = false;
+	private boolean reservado = false;
 	private Situacao situacao;
 	
 	public Exemplar() {
@@ -61,12 +62,20 @@ public class Exemplar {
 		this.origem = origem;
 	}
 
-	public boolean getFixo() {
+	public boolean isFixo() {
 		return fixo;
 	}
 
 	public void setFixo(boolean fixo) {
 		this.fixo = fixo;
+	}
+
+	public boolean isReservado() {
+		return reservado;
+	}
+
+	public void setReservado(boolean reservado) {
+		this.reservado = reservado;
 	}
 
 	public Situacao getSituacao() {

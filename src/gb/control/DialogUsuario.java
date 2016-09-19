@@ -125,16 +125,28 @@ public class DialogUsuario extends DialogUsuarioView {
 	protected void btnSalvarWidgetSelected(SelectionEvent arg0) {
 		if (txtNome.getText().trim().length() > 0)
 			usuario.setNome(txtNome.getText().trim());
+		else
+			usuario.setNome(null);
 		if (txtCpf.getText().trim().length() > 0)
 			usuario.setCpf(InputMask.unmaskString(txtCpf.getText()));
+		else
+			usuario.setCpf(null);
 		if (cmbTipo.getSelectionIndex() >= 0)
 			usuario.setTipo(tipos.get(cmbTipo.getSelectionIndex()));
+		else
+			usuario.setTipo(null);
 		if (txtTelefone.getText().trim().length() > 0)
 			usuario.setTelefone(InputMask.unmaskString(txtTelefone.getText()));
+		else
+			usuario.setTelefone(null);
 		if (txtCel.getText().trim().length() > 0)
 			usuario.setCelular(InputMask.unmaskString(txtCel.getText()));
+		else
+			usuario.setCelular(null);
 		if (txtEmail.getText().trim().length() > 0)
 			usuario.seteMail(txtEmail.getText().trim());
+		else
+			usuario.seteMail(null);
 		if ((txtLogradouro.getText().trim().length() > 0 ||
 			txtNumero.getText().trim().length() > 0 ||
 			txtBairro.getText().trim().length() > 0 ||
@@ -160,14 +172,24 @@ public class DialogUsuario extends DialogUsuarioView {
 		if (usuario.getEndereco() != null){
 			if (txtLogradouro.getText().trim().length() > 0)
 				usuario.getEndereco().setLogradouro(txtLogradouro.getText());
+			else
+				usuario.getEndereco().setLogradouro(null);
 			if (txtNumero.getText().trim().length() > 0)
 				usuario.getEndereco().setNumero(Integer.parseInt(txtNumero.getText()));
+			else
+				usuario.getEndereco().setNumero(null);
 			if (txtBairro.getText().trim().length() > 0)
 				usuario.getEndereco().setBairro(txtBairro.getText());
+			else
+				usuario.getEndereco().setBairro(null);
 			if (txtCep.getText().trim().length() > 0)
 				usuario.getEndereco().setCep(InputMask.unmaskString(txtCep.getText()));
+			else
+				usuario.getEndereco().setCep(null);
 			if (txtComplemento.getText().trim().length() > 0)
 				usuario.getEndereco().setComplemento(txtComplemento.getText());
+			else
+				usuario.getEndereco().setComplemento(null);
 		}
 		Connection connection = ConnectionManager.getConnection();
 		try {

@@ -44,6 +44,8 @@ public class DialogAutorView extends Dialog {
 	 * @return the result
 	 */
 	public Object open() {
+		shell.pack();
+		Screen.centralize(shell, getParent());
 		shell.open();
 		shell.layout();
 		Display display = getParent().getDisplay();
@@ -64,7 +66,10 @@ public class DialogAutorView extends Dialog {
 		shell.setText(getText());
 		shell.setLayout(new GridLayout());
 		group = new Group(shell, SWT.NONE);
-		group.setLayoutData(new GridData(SWT.FILL, SWT.FILL, true, true, 1, 1));
+		GridData gd_group = new GridData(SWT.FILL, SWT.FILL, true, true, 1, 1);
+		gd_group.heightHint = 120;
+		gd_group.widthHint = 300;
+		group.setLayoutData(gd_group);
 		group.setLayout(new GridLayout(2, false));
 		Label lblNewLabel_1 = new Label(group, SWT.NONE);
 		lblNewLabel_1.setLayoutData(new GridData(SWT.RIGHT, SWT.CENTER, false, false, 1, 1));
@@ -93,7 +98,6 @@ public class DialogAutorView extends Dialog {
 		});
 		btnSalvar.setImage(SWTResourceManager.getImage(DialogAutorView.class, "/img/ic_save_black_24dp.png"));
 		btnSalvar.setText("Salvar");
-		Screen.centralize(shell, getParent());
 	}
 
 	protected void btnSalvarWidgetSelected(SelectionEvent arg0) {

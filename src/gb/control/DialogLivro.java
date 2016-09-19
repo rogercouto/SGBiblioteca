@@ -1,8 +1,6 @@
 package gb.control;
 
 import java.sql.Connection;
-import java.time.LocalDate;
-import java.time.temporal.TemporalAccessor;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -85,7 +83,7 @@ public class DialogLivro extends DialogLivroView {
 		//Ajusta as mascaras de entrada
 		Customizer.setNumeric(txtISBN, 0);
 		Customizer.setNumeric(txtNumPag, 0);
-		Customizer.setTemporal(txtDataPublicacao, "dd/MM/yyyy");
+		Customizer.setNumeric(txtAnoPublicacao, 0);
 		tableExemplares.addColumn("numRegistro", "Nº");
 		tableExemplares.addColumn("dataAquisicao", "Data aquisição");
 		tableExemplares.addColumn("secao.descricao", "Seçao");
@@ -124,11 +122,9 @@ public class DialogLivro extends DialogLivroView {
 					}
 				}
 			}
-			if (livro.getDataPublicacao() != null){
-				txtDataPublicacao.setText(Main.FORMATADOR_D.format(livro.getDataPublicacao()));
+			if (livro.getAnoPublicacao() != null){
+				txtAnoPublicacao.setText(livro.getAnoPublicacao().toString());
 			}
-			if (livro.getLocalPublicacao() != null)
-				txtLocalPublicacao.setText(livro.getLocalPublicacao());
 			for (Autor autor : livro.getAutores()) {
 				lstAutores.add(autor.getNomeCompleto());
 			}
@@ -270,12 +266,20 @@ public class DialogLivro extends DialogLivroView {
 		Connection connection = ConnectionManager.getConnection();
 		if (txtTitulo.getText().trim().length() > 0)
 			livro.setTitulo(txtTitulo.getText());
+		else
+			livro.setTitulo(null);
 		if (txtResumo.getText().trim().length() > 0)
 			livro.setResumo(txtResumo.getText());
+		else
+			livro.setResumo(null);
 		if (txtISBN.getText().trim().length() > 0)
 			livro.setIsbn(Integer.parseInt(txtISBN.getText()));
+		else
+			livro.setIsbn(null);
 		if (txtCutter.getText().trim().length() > 0)
 			livro.setCutter(txtCutter.getText());
+		else
+			livro.setCutter(null);
 		if (cmbEditora.getSelectionIndex() >= 0){
 			livro.setEditora(editoras.get(cmbEditora.getSelectionIndex()));
 		}else if (cmbEditora.getText().trim().length() > 0){
@@ -299,6 +303,8 @@ public class DialogLivro extends DialogLivroView {
 				}
 				livro.setEditora(editora);
 			}
+		}else{
+			livro.setEditora(null);
 		}
 		if (cmbAssunto.getSelectionIndex() >= 0){
 			livro.setAssunto(assuntos.get(cmbAssunto.getSelectionIndex()));
@@ -323,19 +329,26 @@ public class DialogLivro extends DialogLivroView {
 				}
 				livro.setAssunto(assunto);
 			}
+		}else{
+			livro.setAssunto(null);
 		}
 		if (txtEdicao.getText().trim().length() > 0)
 			livro.setEdicao(txtEdicao.getText());
+		else
+			livro.setEdicao(null);
 		if (txtVolume.getText().trim().length() > 0)
 			livro.setVolume(txtVolume.getText());
+		else
+			livro.setVolume(null);
 		if (txtNumPag.getText().trim().length() > 0)
 			livro.setNumPaginas(Integer.parseInt(txtNumPag.getText()));
-		if (txtDataPublicacao.getText().trim().length() > 0){
-			TemporalAccessor ta = Main.FORMATADOR_D.parse(txtDataPublicacao.getText());
-			livro.setDataPublicacao(LocalDate.from(ta));
+		else
+			livro.setNumPaginas(null);
+		if (txtAnoPublicacao.getText().trim().length() > 0){
+			livro.setAnoPublicacao(Integer.parseInt(txtAnoPublicacao.getText()));
+		}else{
+			livro.setAnoPublicacao(null);
 		}
-		if (txtLocalPublicacao.getText().trim().length() > 0)
-			livro.setLocalPublicacao(txtLocalPublicacao.getText());
 		LivroDAO livroDAO = new LivroDAO(connection);
 		boolean saved = false;
 		try {

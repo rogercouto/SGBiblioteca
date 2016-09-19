@@ -5,8 +5,14 @@ import org.eclipse.swt.custom.CTabFolder;
 import org.eclipse.swt.custom.CTabItem;
 import org.eclipse.swt.events.KeyAdapter;
 import org.eclipse.swt.events.KeyEvent;
+import org.eclipse.swt.events.ModifyEvent;
+import org.eclipse.swt.events.ModifyListener;
 import org.eclipse.swt.events.SelectionAdapter;
 import org.eclipse.swt.events.SelectionEvent;
+import org.eclipse.swt.events.ShellAdapter;
+import org.eclipse.swt.events.ShellEvent;
+import org.eclipse.swt.events.TraverseEvent;
+import org.eclipse.swt.events.TraverseListener;
 import org.eclipse.swt.layout.GridData;
 import org.eclipse.swt.layout.GridLayout;
 import org.eclipse.swt.widgets.Button;
@@ -15,7 +21,6 @@ import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Dialog;
 import org.eclipse.swt.widgets.Display;
 import org.eclipse.swt.widgets.Event;
-import org.eclipse.swt.widgets.Group;
 import org.eclipse.swt.widgets.Label;
 import org.eclipse.swt.widgets.List;
 import org.eclipse.swt.widgets.Listener;
@@ -27,13 +32,6 @@ import org.eclipse.wb.swt.SWTResourceManager;
 
 import swt.cw.table.DataViwer;
 import swt.cw.util.Screen;
-
-import org.eclipse.swt.events.ModifyListener;
-import org.eclipse.swt.events.ModifyEvent;
-import org.eclipse.swt.events.TraverseListener;
-import org.eclipse.swt.events.TraverseEvent;
-import org.eclipse.swt.events.ShellAdapter;
-import org.eclipse.swt.events.ShellEvent;
 
 public class DialogLivroView extends Dialog {
 
@@ -57,8 +55,6 @@ public class DialogLivroView extends Dialog {
 	protected Composite tab3;
 	protected CTabItem tbtmAutorescategorias;
 	protected Composite tab2;
-	protected Group grpPublicao;
-	protected Text txtLocalPublicacao;
 	protected Text txtBuscaAutor;
 	protected Button btnBuscaAutor;
 	protected List lstAutores;
@@ -72,7 +68,7 @@ public class DialogLivroView extends Dialog {
 	protected ToolItem tbtAddExemplar;
 	protected ToolItem tbtEdtExemplar;
 	protected ToolItem tbtRemExemplar;
-	protected Text txtDataPublicacao;
+	protected Text txtAnoPublicacao;
 	protected Combo cmbAddCategoria;
 
 	/**
@@ -117,7 +113,6 @@ public class DialogLivroView extends Dialog {
 				shellKeyTraversed(arg0);
 			}
 		});
-		shell.setSize(489, 576);
 		shell.setText(getText());
 		shell.setLayout(new GridLayout());
 		tabFolder = new CTabFolder(shell, SWT.BORDER);
@@ -138,7 +133,9 @@ public class DialogLivroView extends Dialog {
 		lblNewLabel.setLayoutData(gd_lblNewLabel);
 		lblNewLabel.setText("Título:");
 		txtTitulo = new Text(tab1, SWT.BORDER);
-		txtTitulo.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, true, false, 3, 1));
+		GridData gd_txtTitulo = new GridData(SWT.FILL, SWT.CENTER, true, false, 3, 1);
+		gd_txtTitulo.widthHint = 250;
+		txtTitulo.setLayoutData(gd_txtTitulo);
 		Label lblNewLabel_1 = new Label(tab1, SWT.NONE);
 		lblNewLabel_1.setLayoutData(new GridData(SWT.RIGHT, SWT.TOP, false, false, 1, 1));
 		lblNewLabel_1.setText("Resumo:");
@@ -195,27 +192,16 @@ public class DialogLivroView extends Dialog {
 			}
 		});
 		cmbAssunto.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, true, false, 3, 1));
+		Label lblNewLabel_9 = new Label(tab1, SWT.NONE);
+		lblNewLabel_9.setLayoutData(new GridData(SWT.RIGHT, SWT.CENTER, false, false, 1, 1));
+		lblNewLabel_9.setAlignment(SWT.RIGHT);
+		lblNewLabel_9.setText("Ano publicação:");
+		txtAnoPublicacao = new Text(tab1, SWT.BORDER);
+		txtAnoPublicacao.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, false, false, 1, 1));
+		new Label(tab1, SWT.NONE);
+		new Label(tab1, SWT.NONE);
 		Label lblNewLabel_11 = new Label(tab1, SWT.NONE);
 		lblNewLabel_11.setLayoutData(new GridData(SWT.LEFT, SWT.CENTER, false, false, 4, 1));
-		grpPublicao = new Group(tab1, SWT.NONE);
-		grpPublicao.setText("Publicação:");
-		grpPublicao.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, false, false, 4, 1));
-		grpPublicao.setLayout(new GridLayout(2, false));
-		Label lblNewLabel_9 = new Label(grpPublicao, SWT.NONE);
-		lblNewLabel_9.setAlignment(SWT.RIGHT);
-		GridData gd_lblNewLabel_9 = new GridData(SWT.RIGHT, SWT.CENTER, false, false, 1, 1);
-		gd_lblNewLabel_9.widthHint = 75;
-		lblNewLabel_9.setLayoutData(gd_lblNewLabel_9);
-		lblNewLabel_9.setText("Data:");
-		txtDataPublicacao = new Text(grpPublicao, SWT.BORDER);
-		GridData gd_txtDataPublicacao = new GridData(SWT.LEFT, SWT.CENTER, true, false, 1, 1);
-		gd_txtDataPublicacao.widthHint = 150;
-		txtDataPublicacao.setLayoutData(gd_txtDataPublicacao);
-		Label lblNewLabel_10 = new Label(grpPublicao, SWT.NONE);
-		lblNewLabel_10.setLayoutData(new GridData(SWT.RIGHT, SWT.CENTER, false, false, 1, 1));
-		lblNewLabel_10.setText("Local:");
-		txtLocalPublicacao = new Text(grpPublicao, SWT.BORDER);
-		txtLocalPublicacao.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, true, false, 1, 1));
 		tbtmAutorescategorias = new CTabItem(tabFolder, SWT.NONE);
 		tbtmAutorescategorias.setText("Autores/Categorias");
 		tab2 = new Composite(tabFolder, SWT.NONE);
@@ -415,6 +401,7 @@ public class DialogLivroView extends Dialog {
 				tableExemplaresKeyDownEvent(arg0);
 			}
 		});
+		shell.pack();
 		Screen.centralize(shell, getParent());
 	}
 	

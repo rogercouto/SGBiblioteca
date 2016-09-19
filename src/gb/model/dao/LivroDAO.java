@@ -16,7 +16,6 @@ import gb.model.Livro;
 import gb.model.data.ConnectionManager;
 import gb.model.exceptions.FindException;
 import gb.model.exceptions.ValidationException;
-import gb.util.TemporalUtil;
 
 public class LivroDAO {
 
@@ -57,11 +56,7 @@ public class LivroDAO {
             ps.setInt(9, livro.getAssunto().getId());
         else
             ps.setObject(9, null);
-        if (livro.getDataPublicacao() != null)
-            ps.setString(10, TemporalUtil.getDbDate(livro.getDataPublicacao()));
-        else
-            ps.setObject(10, null);
-        ps.setString(11, livro.getLocalPublicacao());
+        ps.setObject(10, livro.getAnoPublicacao());
     }
 
     private void insertAutores(Livro livro) throws SQLException{
@@ -89,7 +84,7 @@ public class LivroDAO {
             check(livro);
             String sql = "INSERT INTO livro(titulo, resumo, isbn, cutter, editora_id,"
                     + " edicao, volume, num_paginas, assunto_id,"
-                    + " data_publicacao, local_publicacao) VALUES (?,?,?,?,?,?,?,?,?,?,?)";
+                    + " ano_publicacao) VALUES (?,?,?,?,?,?,?,?,?,?)";
             PreparedStatement ps = connection.prepareStatement(sql);
             setValues(livro, ps);
             ps.executeUpdate();
@@ -125,11 +120,11 @@ public class LivroDAO {
             check(livro);
             String sql = "UPDATE livro SET titulo = ?, resumo = ?, isbn = ?, cutter= ?, "
                     + "editora_id = ?, edicao= ?, volume = ?, num_paginas = ?, "
-                    + "assunto_id = ?, data_publicacao = ?, local_publicacao = ? "
+                    + "assunto_id = ?, ano_publicacao = ? "
                     + "WHERE livro_id = ?";
             PreparedStatement ps = connection.prepareStatement(sql);
             setValues(livro, ps);
-            ps.setInt(12, livro.getId());
+            ps.setInt(11, livro.getId());
             ps.executeUpdate();
             ps.close();
             if (livro.atualizaAutores()){
@@ -210,8 +205,7 @@ public class LivroDAO {
         livro.setEdicao(result.getString("l.edicao"));
         livro.setVolume(result.getString("l.volume"));
         livro.setNumPaginas((Integer)result.getObject("l.num_paginas"));
-        livro.setDataPublicacao(TemporalUtil.getLocalDate(result.getString("l.data_publicacao")));
-        livro.setLocalPublicacao(result.getString("l.local_publicacao"));
+        livro.setAnoPublicacao((Integer)result.getObject("l.ano_publicacao"));
         if (result.getObject("l.editora_id") != null){
             Editora editora = new Editora();
             editora.setId(result.getInt("ed.editora_id"));

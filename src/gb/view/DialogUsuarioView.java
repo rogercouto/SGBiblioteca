@@ -1,25 +1,24 @@
 package gb.view;
 
+import org.eclipse.swt.SWT;
+import org.eclipse.swt.events.KeyAdapter;
+import org.eclipse.swt.events.KeyEvent;
+import org.eclipse.swt.events.SelectionAdapter;
+import org.eclipse.swt.events.SelectionEvent;
+import org.eclipse.swt.layout.GridData;
 import org.eclipse.swt.layout.GridLayout;
+import org.eclipse.swt.widgets.Button;
+import org.eclipse.swt.widgets.Combo;
+import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Dialog;
 import org.eclipse.swt.widgets.Display;
-import org.eclipse.swt.widgets.Shell;
 import org.eclipse.swt.widgets.Group;
-import org.eclipse.swt.SWT;
 import org.eclipse.swt.widgets.Label;
-import org.eclipse.swt.layout.GridData;
-import org.eclipse.swt.widgets.Composite;
-import org.eclipse.swt.widgets.Button;
+import org.eclipse.swt.widgets.Shell;
+import org.eclipse.swt.widgets.Text;
 import org.eclipse.wb.swt.SWTResourceManager;
 
 import swt.cw.util.Screen;
-
-import org.eclipse.swt.widgets.Text;
-import org.eclipse.swt.widgets.Combo;
-import org.eclipse.swt.events.SelectionAdapter;
-import org.eclipse.swt.events.SelectionEvent;
-import org.eclipse.swt.events.KeyAdapter;
-import org.eclipse.swt.events.KeyEvent;
 
 public class DialogUsuarioView extends Dialog {
 
@@ -59,6 +58,8 @@ public class DialogUsuarioView extends Dialog {
 	 * @return the result
 	 */
 	public Object open() {
+		shell.pack();
+		Screen.centralize(shell, getParent());
 		shell.open();
 		shell.layout();
 		Display display = getParent().getDisplay();
@@ -75,14 +76,15 @@ public class DialogUsuarioView extends Dialog {
 	 */
 	private void createContents() {
 		shell = new Shell(getParent(), getStyle());
-		shell.setSize(481, 506);
 		shell.setText(getText());
 		shell.setLayout(new GridLayout());
 		group = new Group(shell, SWT.NONE);
 		GridLayout gl_group = new GridLayout(2, false);
 		gl_group.marginWidth = 10;
 		group.setLayout(gl_group);
-		group.setLayoutData(new GridData(SWT.FILL, SWT.FILL, true, false, 1, 1));
+		GridData gd_group = new GridData(SWT.FILL, SWT.FILL, true, false, 1, 1);
+		gd_group.widthHint = 400;
+		group.setLayoutData(gd_group);
 		Label lblNewLabel = new Label(group, SWT.NONE);
 		lblNewLabel.setAlignment(SWT.RIGHT);
 		GridData gd_lblNewLabel = new GridData(SWT.RIGHT, SWT.CENTER, false, false, 1, 1);
@@ -204,7 +206,6 @@ public class DialogUsuarioView extends Dialog {
 		});
 		btnSalvar.setImage(SWTResourceManager.getImage(DialogUsuarioView.class, "/img/ic_save_black_24dp.png"));
 		btnSalvar.setText("Salvar");
-		Screen.centralize(shell, getParent());
 	}
 
 	protected void btnCidadeWidgetSelected(SelectionEvent arg0) {

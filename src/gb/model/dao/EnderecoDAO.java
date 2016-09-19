@@ -86,7 +86,6 @@ public class EnderecoDAO {
 			check(endereco);
 			String sql = "UPDATE endereco SET logradouro = ?, numero = ?, cidade_id = ?, bairro = ?,"
 					+ " cep = ?, complemento = ?  WHERE endereco_id = ?";
-			System.out.println(sql);
 			PreparedStatement ps = connection.prepareStatement(sql);
 			ps.setString(1, endereco.getLogradouro());
 			ps.setObject(2, endereco.getNumero());

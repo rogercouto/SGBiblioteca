@@ -34,12 +34,14 @@ public class GerenciaLivroEx extends GerenciaView {
 		dao.closeConnection();
 		regViwer.addColumn("id", "Nº", false);
 		regViwer.addColumn("titulo", "Título", true);
+		regViwer.addColumn("isbn", "ISBN", true);
+		regViwer.addColumn("editora.nome", "Editora", true);
 		regViwer.addColumn("nomeAutores", "Autor(es)", true);
 		regViwer.addColumn("exemplares.size", "Exemplares", false);
 		regViwer.setWidth(0, 50);
-		regViwer.setWidth(1, 350);
-		regViwer.setWidth(2, 250);
-		regViwer.setWidth(3, 50);
+		regViwer.setWidth(1, 300);
+		regViwer.setWidth(4, 250);
+		regViwer.setWidth(5, 70);
 		regViwer.setData(livros);
 		regViwer.setFilter(false);
 		regViwer.setRegSource(new RegSource() {
@@ -58,6 +60,12 @@ public class GerenciaLivroEx extends GerenciaView {
 					list = livroDAO.findList("titulo", text);
 					break;
 				case 1:
+					list = livroDAO.findList("isbn", text);
+					break;
+				case 2:
+					list = livroDAO.findList("ed.nome", text);
+					break;
+				case 3:
 					AutorDAO autorDAO = new AutorDAO(connection);
 					List<Autor> autores = autorDAO.findList(text);
 					list = livroDAO.findList(autores);

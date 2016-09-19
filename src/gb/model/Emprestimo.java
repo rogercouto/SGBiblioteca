@@ -14,7 +14,7 @@ public class Emprestimo {
 	private Exemplar exemplar;
 	private Integer numRenovacoes = 0;
 	private LocalDateTime dataHoraDevolucao;
-	private Double multaPaga = 0.0;
+	private Double multa = 0.0;
 	
 	public Emprestimo() {
 		super();
@@ -39,7 +39,16 @@ public class Emprestimo {
 	public LocalDate getPrevisaoDevolucao(){
 		if (usuario == null || usuario.getTipo() == null)
 			return null;
-		LocalDateTime ldt = dataHora.plus(usuario.getTipo().getDiasEmprestimo(), ChronoUnit.DAYS);
+		int mult = 1 + numRenovacoes;
+		LocalDateTime ldt = dataHora.plus(usuario.getTipo().getDiasEmprestimo() * mult, ChronoUnit.DAYS);
+		return LocalDate.from(ldt);
+	}
+	
+	public LocalDate getPrevisaoDevolucao(int plusRen){
+		if (usuario == null || usuario.getTipo() == null)
+			return null;
+		int mult = 1 + numRenovacoes + plusRen;
+		LocalDateTime ldt = dataHora.plus(usuario.getTipo().getDiasEmprestimo() * mult, ChronoUnit.DAYS);
 		return LocalDate.from(ldt);
 	}
 	
@@ -66,6 +75,10 @@ public class Emprestimo {
 	public void setNumRenovacoes(Integer numRenovacoes) {
 		this.numRenovacoes = numRenovacoes;
 	}
+	
+	public void incNumRenovacoes(){
+		numRenovacoes++;
+	}
 
 	public LocalDateTime getDataHoraDevolucao() {
 		return dataHoraDevolucao;
@@ -75,12 +88,12 @@ public class Emprestimo {
 		this.dataHoraDevolucao = dataHoraDevolucao;
 	}
 
-	public Double getMultaPaga() {
-		return multaPaga;
+	public Double getMulta() {
+		return multa;
 	}
 
-	public void setMultaPaga(Double multaPaga) {
-		this.multaPaga = multaPaga;
+	public void setMulta(Double multaPaga) {
+		this.multa = multaPaga;
 	}
 
 }

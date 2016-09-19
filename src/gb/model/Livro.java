@@ -1,6 +1,5 @@
 package gb.model;
 
-import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -16,8 +15,7 @@ public class Livro {
 	private String volume;
 	private Integer numPaginas;
 	private Assunto assunto;
-	private LocalDate dataPublicacao;
-	private String localPublicacao;
+	private Integer anoPublicacao;
 	
 	private List<Autor> autores = new ArrayList<>();
 	private List<Categoria> categorias = new ArrayList<>();
@@ -112,22 +110,6 @@ public class Livro {
 
 	public void setAssunto(Assunto assunto) {
 		this.assunto = assunto;
-	}
-
-	public LocalDate getDataPublicacao() {
-		return dataPublicacao;
-	}
-
-	public void setDataPublicacao(LocalDate dataPublicacao) {
-		this.dataPublicacao = dataPublicacao;
-	}
-
-	public String getLocalPublicacao() {
-		return localPublicacao;
-	}
-
-	public void setLocalPublicacao(String localPublicacao) {
-		this.localPublicacao = localPublicacao;
 	}
 
 	public List<Autor> getAutores() {
@@ -231,6 +213,14 @@ public class Livro {
 		if (nomeAutores == null)
 			return "-";
 		return nomeAutores;
+	}
+
+	public Integer getAnoPublicacao() {
+		return anoPublicacao;
+	}
+
+	public void setAnoPublicacao(Integer anoPublicacao) {
+		this.anoPublicacao = anoPublicacao;
 	}
 
 }

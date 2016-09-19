@@ -34,6 +34,10 @@ public class EmprestimoDAO {
     public void closeConnection(){
         ConnectionManager.closeConnection(connection);
     }
+    
+    public Connection getConnection(){
+    	return connection;
+    }
 
     private void check(Emprestimo emprestimo) throws ValidationException{
         StringBuilder builder = new StringBuilder();
@@ -66,14 +70,15 @@ public class EmprestimoDAO {
             ps.setInt(3, emprestimo.getExemplar().getNumRegistro());
             ps.setInt(4, emprestimo.getNumRenovacoes());
             ps.setString(5, TemporalUtil.getDbDateTime(emprestimo.getDataHoraDevolucao()));
-            ps.setDouble(6, emprestimo.getMultaPaga());
+            ps.setDouble(6, emprestimo.getMulta());
             ps.executeUpdate();
             ps.close();
             emprestimo.setId(ConnectionManager.getLastInsertId(connection));
-            sql = "UPDATE exemplar SET situacao = ? WHERE num_registro = ?";
+            sql = "UPDATE exemplar SET situacao = ?, reservado =  ? WHERE num_registro = ?";
 			ps = connection.prepareStatement(sql);
 			ps.setInt(1, Situacao.EMPRESTADO.getValue());
-			ps.setInt(2, emprestimo.getExemplar().getNumRegistro());
+			ps.setBoolean(2, false);
+			ps.setInt(3, emprestimo.getExemplar().getNumRegistro());
 			ps.executeUpdate();
 			ps.close();
         } catch (SQLException e) {
@@ -95,10 +100,18 @@ public class EmprestimoDAO {
             ps.setInt(3, emprestimo.getExemplar().getNumRegistro());
             ps.setInt(4, emprestimo.getNumRenovacoes());
             ps.setString(5, TemporalUtil.getDbDateTime(emprestimo.getDataHoraDevolucao()));
-            ps.setDouble(6, emprestimo.getMultaPaga());
+            ps.setDouble(6, emprestimo.getMulta());
             ps.setInt(7, emprestimo.getId());
             ps.executeUpdate();
             ps.close();
+            if (emprestimo.getDataHoraDevolucao() != null){
+            	sql = "UPDATE exemplar SET situacao = ? WHERE num_registro = ?";
+    			ps = connection.prepareStatement(sql);
+    			ps.setInt(1, Situacao.DISPONIVEL.getValue());
+    			ps.setInt(2, emprestimo.getExemplar().getNumRegistro());
+    			ps.executeUpdate();
+    			ps.close();
+            }
         } catch (SQLException e) {
             throw new RuntimeException(e.getMessage(), e.getCause());
         }
@@ -182,9 +195,10 @@ public class EmprestimoDAO {
         emprestimo.setDataHoraDevolucao(
         		TemporalUtil.getLocalDateTime(result.getString("em.data_hora_devolucao"))
         		);
-        emprestimo.setMultaPaga(result.getDouble("em.multa"));
+        emprestimo.setMulta(result.getDouble("em.multa"));
         emprestimo.setUsuario(UsuarioDAO.getUsuario(result));
         emprestimo.setExemplar(ExemplarDAO.getExemplar(result));
+        emprestimo.setNumRenovacoes(result.getInt("em.renovacoes"));
         return emprestimo;
     }
 
@@ -296,6 +310,45 @@ public class EmprestimoDAO {
             ps.setString(1, TemporalUtil.getDbDate(dataIni));
             ps.setString(2, TemporalUtil.getDbDate(dataFim));
             ps.setString(3, "%"+text.toUpperCase()+"%");
+            ResultSet result = ps.executeQuery();
+            List<Emprestimo> list = new ArrayList<>();
+            while (result.next())
+                list.add(getEmprestimo(result));
+            result.close();
+            ps.close();
+            for (Emprestimo emprestimo : list) {
+            	LivroDAO livroDAO = new LivroDAO(connection);
+				livroDAO.setAutores(emprestimo.getExemplar().getLivro());
+			}
+            return list;
+        } catch (SQLException e) {
+            throw new RuntimeException(e.getMessage(), e.getCause());
+        }
+    }
+    
+    private boolean isNumeric(String text){
+		char[] ca = text.toCharArray();
+		for (char c : ca) {
+			if (!Character.isDigit(c))
+				return false;
+		}
+		return true;
+	}
+    
+    public List<Emprestimo> findList(String text){
+    	try {
+    		StringBuilder builder = new StringBuilder();
+    		builder.append(getSelectSql());
+    		builder.append(" WHERE data_hora_devolucao IS NULL ");
+    		if (isNumeric(text)){
+    			builder.append("AND (upper(e.num_registro like ?) or (l.isbn like ?))");
+    		}else{
+    			builder.append("AND (upper(u.nome like ?) or (l.titulo like ?))");
+    		}
+            String sql = builder.toString();
+            PreparedStatement ps = connection.prepareStatement(sql);
+            ps.setString(1, "%"+text.toUpperCase()+"%");
+            ps.setString(2, "%"+text.toUpperCase()+"%");
             ResultSet result = ps.executeQuery();
             List<Emprestimo> list = new ArrayList<>();
             while (result.next())

@@ -3,7 +3,6 @@ package gb.control;
 import java.sql.Connection;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
-import java.time.temporal.TemporalAccessor;
 import java.util.List;
 
 import org.eclipse.swt.SWT;
@@ -24,6 +23,7 @@ import gb.model.dao.ReservaDAO;
 import gb.model.dao.UsuarioDAO;
 import gb.model.data.ConnectionManager;
 import gb.model.exceptions.ValidationException;
+import gb.util.TemporalUtil;
 import gb.view.DialogEmprestimoView;
 import swt.cw.Customizer;
 import swt.cw.dialog.FindDialog;
@@ -43,7 +43,7 @@ public class DialogEmprestimo extends DialogEmprestimoView {
 	private void initialize() {
 		shell.setText("Novo empréstimo");
 		Customizer.setTemporal(txtDataHora, "dd/MM/yyyy HH:mm");
-		txtDataHora.setText(Main.FORMATADOR_DH.format(LocalDateTime.now()));
+		txtDataHora.setText(TemporalUtil.formatDateTime(LocalDateTime.now()));
 	}
 	
 	private void buscaUsuario(){
@@ -90,24 +90,31 @@ public class DialogEmprestimo extends DialogEmprestimoView {
 		dialog.setText("Buscar exemplar");
 		dialog.addColumn("numRegistro", "Nº", true);
 		dialog.addColumn("livro.titulo", "Título", true);
+		dialog.addColumn("livro.isbn", "ISBN", true);
 		dialog.setIcons(Main.ICONS);
-		dialog.setWidth(1, 300);
+		dialog.setWidth(0, 80);
+		dialog.setWidth(1, 250);
+		dialog.setWidth(2, 80);
 		dialog.setFindSource(new FindSource() {
 			@Override
 			public List<?> getList(int index, String text) {
 				ExemplarDAO dao = new ExemplarDAO();
-				List<Exemplar> list = dao.findList(index, text, new Situacao[]{Situacao.DISPONIVEL, Situacao.RESERVADO});
+				List<Exemplar> list = dao.findList(index, text);
 				dao.closeConnection();
 				return list;
 			}
 		});
 		Exemplar exemplar = (Exemplar)dialog.open();
 		if (exemplar != null){
-			if (exemplar.getFixo()){
+			if (exemplar.getSituacao().equals(Situacao.EMPRESTADO)){
+				Dialog.warning(shell, "Livro não disponível!");
+				return;
+			}
+			if (exemplar.isFixo()){
 				Dialog.warning(shell, "Livro não pode ser emprestado!");
 				return;
 			}
-			if (exemplar.getSituacao().equals(Situacao.RESERVADO)){
+			if (exemplar.isReservado()){
 				ReservaDAO dao = new ReservaDAO();
 				Reserva reserva = dao.getLastReserva(exemplar);
 				dao.closeConnection();
@@ -129,9 +136,8 @@ public class DialogEmprestimo extends DialogEmprestimoView {
 
 	private void calculaPrevisao(){
 		if (txtDataHora.getText().trim().length() == 16 && emprestimo.getUsuario() != null){
-			TemporalAccessor ta = Main.FORMATADOR_DH.parse(txtDataHora.getText());
-			LocalDate date = LocalDate.from(ta).plusDays(emprestimo.getUsuario().getTipo().getDiasEmprestimo());
-			txtPrevDevolucao.setText(Main.FORMATADOR_D.format(date));
+			LocalDateTime dateTime = TemporalUtil.parseDateTime(txtDataHora.getText()).plusDays(emprestimo.getUsuario().getTipo().getDiasEmprestimo());
+			txtPrevDevolucao.setText(TemporalUtil.formatDate(LocalDate.from(dateTime)));
 		}else{
 			txtPrevDevolucao.setText("");
 		}
@@ -177,20 +183,17 @@ public class DialogEmprestimo extends DialogEmprestimoView {
 	}
 	
 	protected void btnConfirmaWidgetSelected(SelectionEvent arg0) {
-		if (txtDataHora.getText().trim().length() == 16){
-			TemporalAccessor ta = Main.FORMATADOR_DH.parse(txtDataHora.getText());
-			emprestimo.setDataHora(LocalDateTime.from(ta));
-		}
+		if (txtDataHora.getText().trim().length() == 16)
+			emprestimo.setDataHora(TemporalUtil.parseDateTime(txtDataHora.getText()));
 		Connection connection = ConnectionManager.getConnection();
 		EmprestimoDAO dao = new EmprestimoDAO(connection);
 		try {
 			dao.insert(emprestimo);
-			emprestimo.getExemplar().setSituacao(Situacao.EMPRESTADO);
-			ExemplarDAO exemplarDAO = new ExemplarDAO(connection);
-			exemplarDAO.update(emprestimo.getExemplar());
 			ReservaDAO reservaDAO = new ReservaDAO(connection);
 			List<Reserva> reservas = reservaDAO.getList(emprestimo.getUsuario());
 			for (Reserva reserva : reservas) {
+				if (reserva.getDataHoraRetirada() != null)
+					continue;
 				if (emprestimo.getExemplar().getNumRegistro().intValue() == reserva.getExemplar().getNumRegistro().intValue()){
 					reserva.setDataHoraRetirada(LocalDateTime.now());
 					reservaDAO.update(reserva);
@@ -199,6 +202,7 @@ public class DialogEmprestimo extends DialogEmprestimoView {
 			}
 			ConnectionManager.closeConnection(connection);
 			result = emprestimo;
+			Dialog.confirmation(shell, "Empréstimo realizado!");
 			shell.close();
 		} catch (ValidationException e) {
 			ConnectionManager.closeConnection(connection);

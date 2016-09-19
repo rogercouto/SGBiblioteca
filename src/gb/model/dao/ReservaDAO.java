@@ -74,9 +74,9 @@ public class ReservaDAO {
 			ps.executeUpdate();
 			ps.close();
 			reserva.setId(ConnectionManager.getLastInsertId(connection));
-			sql = "UPDATE exemplar SET situacao = ? WHERE num_registro = ?";
+			sql = "UPDATE exemplar SET reservado = ? WHERE num_registro = ?";
 			ps = connection.prepareStatement(sql);
-			ps.setInt(1, Situacao.RESERVADO.getValue());
+			ps.setBoolean(1, true);
 			ps.setInt(2, reserva.getExemplar().getNumRegistro());
 			ps.executeUpdate();
 			ps.close();
@@ -91,7 +91,7 @@ public class ReservaDAO {
 				throw new RuntimeException("Id da reserva n\u00e3o pode ser null!");
 			check(reserva);
 			String sql = "UPDATE reserva SET data_hora = ?, data_limite = ?,"
-					+ " data_hora_retirada = ?, usuario_id = ?, num_registro= ?, cancelada = ?"
+					+ " data_hora_retirada = ?, usuario_id = ?, num_registro= ?, expirada = ?"
 					+ " WHERE reserva_id = ?";
 			PreparedStatement ps = connection.prepareStatement(sql);
 			ps.setString(1, TemporalUtil.getDbDateTime(reserva.getDataHora()));
@@ -99,7 +99,7 @@ public class ReservaDAO {
 			ps.setString(3, TemporalUtil.getDbDateTime(reserva.getDataHoraRetirada()));
 			ps.setInt(4, reserva.getUsuario().getId());
 			ps.setInt(5, reserva.getExemplar().getNumRegistro());
-			ps.setBoolean(6, reserva.isCancelada());
+			ps.setBoolean(6, reserva.isExpirada());
 			ps.setInt(7, reserva.getId());
 			ps.executeUpdate();
 			ps.close();
@@ -117,18 +117,18 @@ public class ReservaDAO {
 
 	public void cancela(Reserva reserva){
 		try {
-			reserva.setCancelada(true);
+			reserva.setExpirada(true);
 			if (reserva.getId() == null)
 				throw new RuntimeException("Id da reserva n\u00e3o pode ser null!");
-			String sql = "UPDATE reserva SET cancelada = ? WHERE reserva_id = ?";
+			String sql = "UPDATE reserva SET expirada = ? WHERE reserva_id = ?";
 			PreparedStatement ps = connection.prepareStatement(sql);
-			ps.setBoolean(1, reserva.isCancelada());
+			ps.setBoolean(1, reserva.isExpirada());
 			ps.setInt(2, reserva.getId());
 			ps.executeUpdate();
 			ps.close();
-			sql = "UPDATE exemplar SET situacao = ? WHERE num_registro = ?";
+			sql = "UPDATE exemplar SET reservado = ? WHERE num_registro = ?";
 			ps = connection.prepareStatement(sql);
-			ps.setInt(1, Situacao.DISPONIVEL.getValue());
+			ps.setBoolean(1, false);
 			ps.setInt(2, reserva.getExemplar().getNumRegistro());
 			ps.executeUpdate();
 			ps.close();
@@ -188,7 +188,7 @@ public class ReservaDAO {
 		reserva.setDataHora(TemporalUtil.getLocalDateTime(result.getString("r.data_hora")));
 		reserva.setDataLimite(TemporalUtil.getLocalDate(result.getString("r.data_limite")));
 		reserva.setDataHoraRetirada(TemporalUtil.getLocalDateTime(result.getString("r.data_hora_retirada")));
-		reserva.setCancelada(result.getBoolean("r.cancelada"));
+		reserva.setExpirada(result.getBoolean("r.expirada"));
 		reserva.setUsuario(UsuarioDAO.getUsuario(result));
 		reserva.setExemplar(ExemplarDAO.getExemplar(result));
 		return reserva;
@@ -247,7 +247,7 @@ public class ReservaDAO {
 	
 	public List<Reserva> getListExpiradas(){
 		try {
-			String sql = getSelectSql("cancelada = 0 AND r.data_limite < ?");
+			String sql = getSelectSql("expirada = 0 AND r.data_limite < ?");
 			PreparedStatement ps = connection.prepareStatement(sql);
 			ps.setString(1, TemporalUtil.getDbDate(LocalDate.now()));
 			ResultSet result = ps.executeQuery();
@@ -268,9 +268,9 @@ public class ReservaDAO {
 		ReservaDAO reservaDAO = new ReservaDAO(connection);
 		for (Reserva reserva : list) {
 			Exemplar exemplar = reserva.getExemplar();
-			if (exemplar.getSituacao().equals(Situacao.RESERVADO)){
-				exemplar.setSituacao(Situacao.DISPONIVEL);
-				reserva.setCancelada(true);
+			if (exemplar.isReservado()){
+				exemplar.setReservado(false);
+				reserva.setExpirada(true);
 				try {
 					exemplarDao.update(exemplar);
 					reservaDAO.update(reserva);
@@ -283,7 +283,7 @@ public class ReservaDAO {
 	
 	public Reserva getLastReserva(Exemplar exemplar){
 		try {
-			String sql = getSelectSql("e.num_registro = ? AND r.data_hora_retirada IS NULL AND r.cancelada = 0");
+			String sql = getSelectSql("e.num_registro = ? AND r.data_hora_retirada IS NULL AND r.expirada = 0");
 			PreparedStatement ps = connection.prepareStatement(sql);
 			ps.setInt(1, exemplar.getNumRegistro());
 			ResultSet result = ps.executeQuery();

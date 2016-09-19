@@ -1,9 +1,7 @@
 package gb.control;
 
-import java.sql.Connection;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
-import java.time.temporal.TemporalAccessor;
 import java.util.List;
 
 import org.eclipse.swt.SWT;
@@ -12,15 +10,17 @@ import org.eclipse.swt.events.SelectionEvent;
 import org.eclipse.swt.widgets.Shell;
 
 import gb.Main;
+import gb.model.Emprestimo;
 import gb.model.Exemplar;
 import gb.model.Reserva;
 import gb.model.Situacao;
 import gb.model.Usuario;
+import gb.model.dao.EmprestimoDAO;
 import gb.model.dao.ExemplarDAO;
 import gb.model.dao.ReservaDAO;
 import gb.model.dao.UsuarioDAO;
-import gb.model.data.ConnectionManager;
 import gb.model.exceptions.ValidationException;
+import gb.util.TemporalUtil;
 import gb.view.DialogReservaView;
 import swt.cw.Customizer;
 import swt.cw.dialog.FindDialog;
@@ -41,8 +41,8 @@ public class DialogReserva extends DialogReservaView {
 		shell.setText("Nova reserva");
 		Customizer.setTemporal(txtDataHora, "dd/MM/yyyy HH:mm");
 		Customizer.setTemporal(txtLimite, "dd/MM/yyyy");
-		txtDataHora.setText(Main.FORMATADOR_DH.format(LocalDateTime.now()));
-		txtLimite.setText(Main.FORMATADOR_D.format(LocalDate.now().plusDays(Reserva.DIAS_RESERVA)));
+		txtDataHora.setText(TemporalUtil.formatDateTime(LocalDateTime.now()));
+		txtLimite.setText(TemporalUtil.formatDate(LocalDate.now().plusDays(Reserva.DIAS_RESERVA)));
 	}
 	
 	private void buscaUsuario(){
@@ -88,22 +88,44 @@ public class DialogReserva extends DialogReservaView {
 		dialog.setText("Buscar exemplar");
 		dialog.addColumn("numRegistro", "Nº", true);
 		dialog.addColumn("livro.titulo", "Título", true);
-		dialog.setWidth(1, 300);
+		dialog.addColumn("livro.isbn", "ISBN", true);
 		dialog.setIcons(Main.ICONS);
+		dialog.setWidth(0, 80);
+		dialog.setWidth(1, 250);
+		dialog.setWidth(2, 80);
 		dialog.setFindSource(new FindSource() {
 			@Override
 			public List<?> getList(int index, String text) {
 				ExemplarDAO dao = new ExemplarDAO();
-				List<Exemplar> list = dao.findList(index, text, Situacao.DISPONIVEL);
+				List<Exemplar> list = dao.findList(index, text);
 				dao.closeConnection();
 				return list;
 			}
 		});
 		Exemplar exemplar = (Exemplar)dialog.open();
 		if (exemplar != null){
-			if (exemplar.getFixo()){
+			if (exemplar.isFixo()){
 				Dialog.warning(shell, "Livro não pode ser emprestado!");
 				return;
+			}else if (exemplar.isReservado()){
+				Dialog.warning(shell, "Livro já está reservado!");
+				return;
+			}
+			if (exemplar.getSituacao().equals(Situacao.EMPRESTADO)){
+				EmprestimoDAO dao = new EmprestimoDAO();
+				Emprestimo emprestimo = dao.getLastEmprestimo(exemplar);
+				if (emprestimo.getUsuario() != null 
+						&& reserva.getUsuario().getId().intValue() == emprestimo.getUsuario().getId().intValue()){
+					Dialog.warning(shell, "O livro já está com o usuário!");
+					return;
+				}
+				if (emprestimo != null)
+					Dialog.message(shell, "Atenção", "Livro está emprestado, previsão de retorno: "+
+						TemporalUtil.formatDate(emprestimo.getPrevisaoDevolucao()));
+				if (reserva.getUsuario() != null)
+					txtLimite.setText(
+							TemporalUtil.formatDate(
+									emprestimo.getPrevisaoDevolucao().plusDays(Reserva.DIAS_RESERVA)));
 			}
 			txtExemplar.setText(exemplar.getNumRegistro()+" - "+exemplar.getLivro().getTitulo());
 			reserva.setExemplar(exemplar);
@@ -146,23 +168,19 @@ public class DialogReserva extends DialogReservaView {
 	}
 	
 	protected void btnConfirmaWidgetSelected(SelectionEvent arg0) {
-		if (txtDataHora.getText().trim().length() == 16){
-			TemporalAccessor ta = Main.FORMATADOR_DH.parse(txtDataHora.getText());
-			reserva.setDataHora(LocalDateTime.from(ta));
-			reserva.setDataLimite(LocalDate.from(ta).plusDays(Reserva.DIAS_RESERVA));
-		}
-		Connection connection = ConnectionManager.getConnection();
-		ReservaDAO dao = new ReservaDAO(connection);
+		if (txtDataHora.getText().trim().length() == 16)
+			reserva.setDataHora(TemporalUtil.parseDateTime(txtDataHora.getText()));
+		if (txtLimite.getText().trim().length() == 10)
+			reserva.setDataLimite(TemporalUtil.parseDate(txtLimite.getText()));
+		ReservaDAO dao = new ReservaDAO();
 		try {
 			dao.insert(reserva);
-			reserva.getExemplar().setSituacao(Situacao.RESERVADO);
-			ExemplarDAO exemplarDAO = new ExemplarDAO(connection);
-			exemplarDAO.update(reserva.getExemplar());
-			ConnectionManager.closeConnection(connection);
+			dao.closeConnection();
 			result = reserva;
+			Dialog.confirmation(shell, "Reserva realizada!");
 			shell.close();
 		} catch (ValidationException e) {
-			ConnectionManager.closeConnection(connection);
+			dao.closeConnection();
 			Dialog.error(shell, e.getMessage());
 		}
 	}

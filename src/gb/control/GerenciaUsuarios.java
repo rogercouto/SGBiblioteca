@@ -34,6 +34,7 @@ public class GerenciaUsuarios extends GerenciaView {
 		regViwer.setPattern(2, "(##)####-####");
 		regViwer.setPattern(3, "(##)####-####");
 		regViwer.setWidth(1, 250);
+		regViwer.setWidth(4, 200);
 		regViwer.setData(usuarios);
 		regViwer.setRegSource(new RegSource() {
 			@Override

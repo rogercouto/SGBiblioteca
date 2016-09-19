@@ -57,7 +57,7 @@ public class ExemplarDAO {
 	public void insert(Exemplar exemplar) throws ValidationException{
 		try {
 			check(exemplar);
-			String sql = "INSERT INTO exemplar VALUES(?, ?, ?, ?, ?, ?, ?)";
+			String sql = "INSERT INTO exemplar VALUES(?, ?, ?, ?, ?, ?, ?, ?)";
 			PreparedStatement ps = connection.prepareStatement(sql);
 			ps.setObject(1, exemplar.getNumRegistro());
 			ps.setObject(2, exemplar.getLivro() != null ? exemplar.getLivro().getId() : null);
@@ -67,8 +67,9 @@ public class ExemplarDAO {
 						null
 					);
 			ps.setObject(5, exemplar.getOrigem() != null ? exemplar.getOrigem().getId() : null);
-			ps.setBoolean(6, exemplar.getFixo());
-			ps.setInt(7, exemplar.getSituacao().getValue());
+			ps.setBoolean(6, exemplar.isFixo());
+			ps.setBoolean(7, exemplar.isReservado());
+			ps.setInt(8, exemplar.getSituacao().getValue());
 			ps.executeUpdate();
 			ps.close();
 		} catch (SQLException e) {
@@ -82,7 +83,7 @@ public class ExemplarDAO {
 			if (exemplar.getNumRegistro() == null)
 				throw new RuntimeException("Id do exemplar n\u00e3o pode ser null!");
 			String sql = "UPDATE exemplar SET livro_id = ?, secao_id = ?,"
-					+ " data_aquisicao = ?, origem_id = ?, fixo = ?, situacao = ?"
+					+ " data_aquisicao = ?, origem_id = ?, fixo = ?, reservado = ?, situacao = ?"
 					+ " WHERE num_registro = ?";
 			PreparedStatement ps = connection.prepareStatement(sql);
 			ps.setObject(1, exemplar.getLivro() != null ? exemplar.getLivro().getId() : null);
@@ -92,9 +93,10 @@ public class ExemplarDAO {
 						null
 					);
 			ps.setObject(4, exemplar.getOrigem() != null ? exemplar.getOrigem().getId() : null);
-			ps.setBoolean(5, exemplar.getFixo());
-			ps.setInt(6, exemplar.getSituacao().getValue());
-			ps.setInt(7, exemplar.getNumRegistro());
+			ps.setBoolean(5, exemplar.isFixo());
+			ps.setBoolean(6, exemplar.isReservado());
+			ps.setInt(7, exemplar.getSituacao().getValue());
+			ps.setInt(8, exemplar.getNumRegistro());
 			ps.executeUpdate();
 			ps.close();
 		} catch (SQLException e) {
@@ -191,6 +193,7 @@ public class ExemplarDAO {
 		exemplar.setOrigem(getOrigem(result));
 		exemplar.setFixo(result.getBoolean("fixo"));
 		exemplar.setSecao(getSecao(result));
+		exemplar.setReservado(result.getBoolean("reservado"));
 		exemplar.setSituacao(Situacao.getSituacao(result.getInt("e.situacao")));
 		return exemplar;
 	}
@@ -238,6 +241,7 @@ public class ExemplarDAO {
 		}
 	}
 	
+	@Deprecated
 	public List<Exemplar> getList(boolean fixo, Situacao[] situacoes){
 		try {
 			StringBuilder builder = new StringBuilder();
@@ -306,80 +310,67 @@ public class ExemplarDAO {
 		return true;
 	}
 	
-	private boolean isIn(Exemplar exemplar, Situacao[] situacoes){
-		for (Situacao situacao : situacoes) {
-			if (exemplar.getSituacao().equals(situacao))
-				return true;
-		}
-		return false;
-	}
-	
-	public List<Exemplar> findList(int index, String text, Situacao[] situacoes){
-		if (text.trim().length() == 0){
-			return getList(false, situacoes);
-		}else{
-			if (index == 0){
-				if (isNumeric(text)){
-					Exemplar exemplar = get(Integer.parseInt(text));
-					List<Exemplar> list = new ArrayList<>();
-					if (exemplar != null && isIn(exemplar, situacoes)){
-						list.add(exemplar);
-					}
-					return list;
+	public List<Exemplar> getList(Situacao situacao){
+		try {
+			String sql = getSelectSql("e.situacao = ?");
+			PreparedStatement ps = connection.prepareStatement(sql);
+			ps.setInt(1, situacao.getValue());
+			ResultSet result = ps.executeQuery();
+			List<Exemplar> list = new ArrayList<>();;
+			while (result.next())
+				list.add(getExemplar(result));
+			result.close();
+			ps.close();
+			for (Exemplar exemplar : list) {
+				if (exemplar.getLivro() != null){
+					LivroDAO livroDAO = new LivroDAO(connection);
+					livroDAO.setAutores(exemplar.getLivro());
 				}
-			}else if (index == 1){
-				LivroDAO livroDAO = new LivroDAO(connection);
-				List<Livro> livros = livroDAO.findList("titulo", text);
-				List<Exemplar> result = new ArrayList<>();
-				for (Livro livro : livros) {
-					for (Exemplar exemplar : livro.getExemplares()) {
-						if (isIn(exemplar, situacoes))
-							result.add(exemplar);
-					}
-				}
-				Collections.sort(result, new Comparator<Exemplar>() {
-					@Override
-					public int compare(Exemplar e1, Exemplar e2) {
-						return e1.getNumRegistro().compareTo(e2.getNumRegistro());
-					}
-				});
-				return result;
 			}
+			return list;
+		} catch (SQLException e) {
+			throw new RuntimeException(e.getMessage(), e.getCause());
 		}
-		return null;
 	}
 	
 	public List<Exemplar> findList(int index, String text, Situacao situacao){
-		return findList(index, text, new Situacao[]{situacao});
-	}
-	
-	public List<Exemplar> findList(String text){
 		if (text.trim().length() == 0){
-			return getList();
+			if (situacao == null)
+				return getList();
+			else 
+				return getList(situacao);
 		}else{
-			if (isNumeric(text)){
-				Exemplar exemplar = get(Integer.parseInt(text));
+			if (index == 0){
+				if (!isNumeric(text))
+					return new ArrayList<>();
 				List<Exemplar> list = new ArrayList<>();
-				list.add(exemplar);
+				Exemplar exemplar = get(Integer.parseInt(text));
+				if (exemplar != null && (situacao == null || exemplar.getSituacao().equals(situacao)))
+					list.add(exemplar);
 				return list;
-			}else{
+			}else if (index == 1 || index == 2){
 				LivroDAO livroDAO = new LivroDAO(connection);
-				List<Livro> livros = livroDAO.findList("titulo", text);
-				List<Exemplar> result = new ArrayList<>();
+				List<Livro> livros = livroDAO.findList((index == 1)?"titulo":"isbn", text);
+				List<Exemplar> list = new ArrayList<>();
 				for (Livro livro : livros) {
 					for (Exemplar exemplar : livro.getExemplares()) {
-						result.add(exemplar);
+						if (situacao == null || exemplar.getSituacao().equals(situacao));
+							list.add(exemplar);
 					}
 				}
-				Collections.sort(result, new Comparator<Exemplar>() {
+				Collections.sort(list, new Comparator<Exemplar>() {
 					@Override
 					public int compare(Exemplar e1, Exemplar e2) {
 						return e1.getNumRegistro().compareTo(e2.getNumRegistro());
 					}
 				});
-				return result;
+				return list;
 			}
 		}
+		return new ArrayList<>();
 	}
 	
+	public List<Exemplar> findList(int index, String text){
+		return findList(index, text, null);
+	}
 }

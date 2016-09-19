@@ -49,6 +49,8 @@ public class DialogExemplarView extends Dialog {
 	 * @return the result
 	 */
 	public Object open() {
+		shell.pack();
+		Screen.centralize(shell, getParent());
 		shell.open();
 		shell.layout();
 		Display display = getParent().getDisplay();
@@ -70,7 +72,9 @@ public class DialogExemplarView extends Dialog {
 		shell.setLayout(new GridLayout());
 		group = new Group(shell, SWT.NONE);
 		group.setLayout(new GridLayout(2, false));
-		group.setLayoutData(new GridData(SWT.FILL, SWT.FILL, true, true, 1, 1));
+		GridData gd_group = new GridData(SWT.FILL, SWT.FILL, true, true, 1, 1);
+		gd_group.widthHint = 300;
+		group.setLayoutData(gd_group);
 		Label lblNewLabel = new Label(group, SWT.NONE);
 		lblNewLabel.setLayoutData(new GridData(SWT.RIGHT, SWT.CENTER, false, false, 1, 1));
 		lblNewLabel.setText("Nº:");
@@ -113,7 +117,6 @@ public class DialogExemplarView extends Dialog {
 		});
 		btnSalvar.setImage(SWTResourceManager.getImage(DialogExemplarView.class, "/img/ic_save_black_24dp.png"));
 		btnSalvar.setText("Salvar");
-		Screen.centralize(shell, getParent());
 	}
 
 	protected void btnSalvarWidgetSelected(SelectionEvent arg0) {

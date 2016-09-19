@@ -28,8 +28,7 @@ CREATE TABLE livro(
 	volume INTEGER,
 	num_paginas INTEGER,
 	assunto_id INTEGER,
-	data_publicacao DATE,
-	local_publicacao VARCHAR(100)
+	ano_publicacao INTEGER
 )engine=InnoDB;
 
 ALTER TABLE livro ADD CONSTRAINT fk_editora_livro FOREIGN KEY(editora_id) REFERENCES editora(editora_id) ON UPDATE CASCADE;
@@ -75,6 +74,7 @@ CREATE TABLE exemplar(
 	data_aquisicao DATE,
 	origem_id INTEGER,
 	fixo TINYINT NOT NULL DEFAULT 0,
+	reservado TINYINT NOT NULL DEFAULT 0,
 	situacao INTEGER NOT NULL
 );
 
@@ -148,7 +148,7 @@ CREATE TABLE reserva(
     data_hora TIMESTAMP NOT NULL,
     data_limite DATE NOT NULL,
     data_hora_retirada DATETIME,
-    cancelada BOOL NOT NULL DEFAULT 0
+    expirada TINYINT NOT NULL DEFAULT 0
 );
 
 ALTER TABLE reserva ADD CONSTRAINT fk_exemplar_reserva FOREIGN KEY(num_registro) REFERENCES exemplar(num_registro) ON UPDATE CASCADE;
@@ -161,8 +161,19 @@ CREATE TABLE emprestimo(
     num_registro INTEGER NOT NULL,
     renovacoes INTEGER,
     data_hora_devolucao DATETIME,
-    multa double
+    multa DOUBLE
 );
 
 ALTER TABLE emprestimo ADD CONSTRAINT fk_usuario_emprestimo FOREIGN KEY(usuario_id) REFERENCES usuario(usuario_id) ON UPDATE CASCADE;
 ALTER TABLE emprestimo ADD CONSTRAINT fk_exemplar_emprestimo FOREIGN KEY(num_registro) REFERENCES exemplar(num_registro) ON UPDATE CASCADE;
+
+CREATE TABLE pendencia(
+	pendencia_id INTEGER NOT NULL PRIMARY KEY AUTO_INCREMENT,
+	usuario_id INTEGER NOT NULL,
+	valor DOUBLE NOT NULL,
+	data_hora_lancamento TIMESTAMP NOT NULL,
+	data_hora_pagamento DATETIME
+);
+
+ALTER TABLE pendencia ADD CONSTRAINT fk_pendencia_usuario FOREIGN KEY(usuario_id) REFERENCES usuario(usuario_id) ON UPDATE CASCADE;
+

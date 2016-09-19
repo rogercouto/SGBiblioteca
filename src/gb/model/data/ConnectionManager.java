@@ -1,10 +1,14 @@
 package gb.model.data;
 
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.IOException;
 import java.sql.Connection;
 import java.sql.DriverManager;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
+import java.util.Properties;
 
 public class ConnectionManager {
 
@@ -17,10 +21,20 @@ public class ConnectionManager {
 	 */
 	public static Connection getConnection(){
 		try {
+			File fileProp = new File("db.properties");
+			if (fileProp.exists()){
+				Properties prop = new Properties();
+				FileInputStream in = new FileInputStream(fileProp);
+				prop.load(in);
+				String url = prop.getProperty("jdbc.url")+prop.getProperty("jdbc.database");
+		        String username = prop.getProperty("jdbc.username");
+		        String password = prop.getProperty("jdbc.password");
+		        return DriverManager.getConnection(url, username, password);
+			}
 			return DriverManager.getConnection(URL,"root","");
-		}  catch (SQLException e) {
+		}  catch (SQLException | IOException e) {
 			e.printStackTrace();
-		}
+		} 
 		return null;
 	}
 

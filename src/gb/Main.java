@@ -13,7 +13,9 @@ import swt.cw.util.Dialog;
 
 public class Main {
 
+	@Deprecated
 	public static final DateTimeFormatter FORMATADOR_D = DateTimeFormatter.ofPattern("dd/MM/yyyy");
+	@Deprecated
 	public static final DateTimeFormatter FORMATADOR_DH = DateTimeFormatter.ofPattern("dd/MM/yyyy HH:mm");
 	
 	public static final Image[] ICONS = new Image[]{

@@ -1,6 +1,5 @@
 package gb.control;
 
-import java.sql.Connection;
 import java.text.DecimalFormat;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
@@ -15,10 +14,11 @@ import org.eclipse.swt.widgets.Shell;
 import gb.Main;
 import gb.model.Emprestimo;
 import gb.model.Exemplar;
+import gb.model.Pendencia;
 import gb.model.Situacao;
 import gb.model.dao.EmprestimoDAO;
 import gb.model.dao.ExemplarDAO;
-import gb.model.data.ConnectionManager;
+import gb.model.dao.PendenciaDAO;
 import gb.model.exceptions.ValidationException;
 import gb.view.DialogDevolucaoView;
 import swt.cw.dialog.FindDialog;
@@ -45,8 +45,11 @@ public class DialogDevolucao extends DialogDevolucaoView{
 		dialog.setText("Buscar exemplar");
 		dialog.addColumn("numRegistro", "Nº", true);
 		dialog.addColumn("livro.titulo", "Título", true);
-		dialog.setWidth(1, 300);
+		dialog.addColumn("livro.isbn", "ISBN", true);
 		dialog.setIcons(Main.ICONS);
+		dialog.setWidth(0, 80);
+		dialog.setWidth(1, 250);
+		dialog.setWidth(2, 80);
 		dialog.setFindSource(new FindSource() {
 			@Override
 			public List<?> getList(int index, String text) {
@@ -91,25 +94,34 @@ public class DialogDevolucao extends DialogDevolucaoView{
 	protected void btnConfirmaWidgetSelected(SelectionEvent arg0) {
 		if (emprestimo == null)
 			return;
-		if (multa > 0 && !Dialog.question(shell, "Confirma pagamento da taxa de atraso?"))
-			return;
 		if (multa > 0)
-			emprestimo.setMultaPaga(multa);
+			emprestimo.setMulta(multa);
 		emprestimo.setDataHoraDevolucao(LocalDateTime.now());
-		Exemplar exemplar = emprestimo.getExemplar();
-		Connection connection = ConnectionManager.getConnection();
+		EmprestimoDAO dao = new EmprestimoDAO();
 		try {
-			exemplar.setSituacao(Situacao.DISPONIVEL);
-			EmprestimoDAO dao = new EmprestimoDAO(connection);
 			dao.update(emprestimo);
-			ExemplarDAO exemplarDao = new ExemplarDAO(connection);
-			exemplarDao.update(exemplar);
-			ConnectionManager.closeConnection(connection);
+			boolean pendente = false;
+			if (multa > 0){
+				Pendencia pendencia = new Pendencia();
+				pendencia.setUsuario(emprestimo.getUsuario());
+				pendencia.setDataHoraLancamento(LocalDateTime.now());
+				pendencia.setValor(multa);
+				if (Dialog.question(shell, "Lançar pagamento da multa gerada?"))
+					pendencia.setDataHoraPagamento(LocalDateTime.now());
+				else
+					pendente = true;
+				PendenciaDAO pDao = new PendenciaDAO(dao.getConnection());
+				pDao.insert(pendencia);
+			}
+			dao.closeConnection();
 			result = emprestimo;
-			Dialog.confirmation(shell, "Devolução efetuada!");
+			String msg = "Devolução efetuada!";
+			if (pendente)
+				msg += "\nPagamento pendente.";
+			Dialog.confirmation(shell, msg);
 			shell.close();
 		} catch (ValidationException e) {
-			ConnectionManager.closeConnection(connection);
+			dao.closeConnection();
 			throw new RuntimeException(e.getMessage());
 		}
 	}

@@ -13,7 +13,7 @@ public class Reserva {
 	private LocalDateTime dataHora;
 	private LocalDate dataLimite;
 	private LocalDateTime dataHoraRetirada;
-	private boolean cancelada = false;
+	private boolean expirada = false;
 	//Transient
 	private String status = "Pendente";
 
@@ -71,13 +71,13 @@ public class Reserva {
 		this.exemplar = exemplar;
 	}
 
-	public boolean isCancelada() {
-		return cancelada;
+	public boolean isExpirada() {
+		return expirada;
 	}
 
-	public void setCancelada(boolean cancelada) {
-		this.cancelada = cancelada;
-		if (cancelada)
+	public void setExpirada(boolean expirada) {
+		this.expirada = expirada;
+		if (expirada)
 			status = "Expirada";
 	}
 

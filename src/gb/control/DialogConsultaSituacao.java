@@ -16,6 +16,7 @@ import gb.model.Situacao;
 import gb.model.dao.EmprestimoDAO;
 import gb.model.dao.ExemplarDAO;
 import gb.model.dao.ReservaDAO;
+import gb.util.TemporalUtil;
 import gb.view.DialogConsultaSituacaoView;
 import swt.cw.dialog.FindDialog;
 import swt.cw.model.FindSource;
@@ -33,13 +34,16 @@ public class DialogConsultaSituacao extends DialogConsultaSituacaoView {
 		dialog.setText("Buscar exemplar");
 		dialog.addColumn("numRegistro", "Nº", true);
 		dialog.addColumn("livro.titulo", "Título", true);
+		dialog.addColumn("livro.isbn", "ISBN", true); //ad
 		dialog.setIcons(Main.ICONS);
-		dialog.setWidth(1, 300);
+		dialog.setWidth(0, 80);
+		dialog.setWidth(1, 250);
+		dialog.setWidth(2, 80);
 		dialog.setFindSource(new FindSource() {
 			@Override
 			public List<?> getList(int index, String text) {
 				ExemplarDAO dao = new ExemplarDAO();
-				List<Exemplar> list = dao.findList(text);
+				List<Exemplar> list = dao.findList(index, text);
 				dao.closeConnection();
 				return list;
 			}
@@ -50,25 +54,22 @@ public class DialogConsultaSituacao extends DialogConsultaSituacaoView {
 			txtBusca.setText(exemplar.getNumRegistro()+" - "+exemplar.getLivro().getTitulo());
 			addItem("Autor(es):", exemplar.getLivro().getNomeAutores());
 			addItem("Situação:", exemplar.getSituacao().name());
-			if (exemplar.getFixo()){
+			if (exemplar.isFixo()){
 				addItem("Exemplar fixo:", "Não pode ser emprestado!");
 			}else{
 				if (exemplar.getSituacao().equals(Situacao.EMPRESTADO)){
 					EmprestimoDAO dao = new EmprestimoDAO();
 					Emprestimo emprestimo = dao.getLastEmprestimo(exemplar);
 					if (emprestimo.getDataHoraDevolucao() == null)
-						addItem("Previsão devolução:", Main.FORMATADOR_D.format(emprestimo.getPrevisaoDevolucao()));
-				}else if (exemplar.getSituacao().equals(Situacao.RESERVADO)){
+						addItem("Previsão devolução:", TemporalUtil.formatDate(emprestimo.getPrevisaoDevolucao()));
+				}
+				if (exemplar.isReservado()){
+					addDivisor();
+					addItem("", "RESERVADO");
 					ReservaDAO dao = new ReservaDAO();
 					Reserva reserva = dao.getLastReserva(exemplar);
-					if (!reserva.isCancelada()){
-						addItem("Limite retirada:",  Main.FORMATADOR_D.format(reserva.getDataLimite()));
-						addItem("Previsão retorno*:",  
-								Main.FORMATADOR_D.format(reserva.getDataLimite().
-										plusDays(reserva.getUsuario().getTipo().getDiasEmprestimo())));
-						addDivisor();
-						addItem("*", "Previsão de retorno ignorando renovações");
-					}
+					if (reserva != null && !reserva.isExpirada())
+						addItem("Limite retirada:",  TemporalUtil.formatDate(reserva.getDataLimite()));
 				}
 				
 			}

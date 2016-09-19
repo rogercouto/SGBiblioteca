@@ -55,6 +55,8 @@ public class DialogEmprestimoView extends Dialog {
 	 * @return the result
 	 */
 	public Object open() {
+		shell.pack();
+		Screen.centralize(shell, getParent());
 		shell.open();
 		shell.layout();
 		Display display = getParent().getDisplay();
@@ -76,7 +78,9 @@ public class DialogEmprestimoView extends Dialog {
 		shell.setText(getText());
 		shell.setLayout(new GridLayout());
 		grpUsurio = new Group(shell, SWT.NONE);
-		grpUsurio.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, true, false, 1, 1));
+		GridData gd_grpUsurio = new GridData(SWT.FILL, SWT.CENTER, true, false, 1, 1);
+		gd_grpUsurio.widthHint = 400;
+		grpUsurio.setLayoutData(gd_grpUsurio);
 		GridLayout gl_grpUsurio = new GridLayout(3, false);
 		gl_grpUsurio.horizontalSpacing = 1;
 		grpUsurio.setLayout(gl_grpUsurio);
@@ -153,7 +157,6 @@ public class DialogEmprestimoView extends Dialog {
 		});
 		btnConfirma.setImage(SWTResourceManager.getImage(DialogEmprestimoView.class, "/img/ic_assignment_turned_in_black_24dp.png"));
 		btnConfirma.setText("Confirma");
-		Screen.centralize(shell, getParent());
 	}
 
 	protected void btnBuscaUsuarioWidgetSelected(SelectionEvent arg0) {

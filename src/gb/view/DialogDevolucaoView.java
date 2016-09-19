@@ -65,6 +65,7 @@ public class DialogDevolucaoView extends Dialog {
 	 */
 	private void createContents() {
 		shell = new Shell(getParent(), getStyle());
+		shell.setImage(SWTResourceManager.getImage(DialogDevolucaoView.class, "/img/ic_assignment_return_black_24dp.png"));
 		shell.setSize(449, 199);
 		shell.setText(getText());
 		shell.setLayout(new GridLayout(1, false));
