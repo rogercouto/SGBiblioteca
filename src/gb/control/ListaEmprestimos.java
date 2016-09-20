@@ -10,7 +10,6 @@ import org.eclipse.swt.events.ModifyEvent;
 import org.eclipse.swt.events.MouseEvent;
 import org.eclipse.swt.events.SelectionEvent;
 import org.eclipse.swt.widgets.Composite;
-import org.eclipse.wb.swt.SWTResourceManager;
 
 import gb.model.Emprestimo;
 import gb.model.Exemplar;
@@ -32,9 +31,6 @@ public class ListaEmprestimos extends ListaView {
 	}
 	
 	private void initialize(){
-		lblHeader.setForeground(SWTResourceManager.getColor(SWT.COLOR_WHITE));
-		cmpHeader.setBackground(SWTResourceManager.getColor(SWT.COLOR_DARK_MAGENTA));
-		lblHeader.setBackground(cmpHeader.getBackground());
 		setHeader("Empréstimios/Devoluções", SWT.COLOR_WHITE, SWT.COLOR_DARK_MAGENTA);
 		table.addColumn("dataHora", "Data/Hora");
 		table.addColumn("usuario.nome", "Usuário");

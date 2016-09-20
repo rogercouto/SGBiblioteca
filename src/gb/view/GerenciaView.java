@@ -1,19 +1,23 @@
 package gb.view;
 
 import org.eclipse.swt.SWT;
+import org.eclipse.swt.events.SelectionAdapter;
+import org.eclipse.swt.events.SelectionEvent;
 import org.eclipse.swt.graphics.Color;
+import org.eclipse.swt.graphics.Font;
+import org.eclipse.swt.graphics.FontData;
 import org.eclipse.swt.graphics.Image;
 import org.eclipse.swt.layout.GridData;
 import org.eclipse.swt.layout.GridLayout;
 import org.eclipse.swt.widgets.Composite;
+import org.eclipse.swt.widgets.Display;
 import org.eclipse.swt.widgets.Label;
-import org.eclipse.wb.swt.SWTResourceManager;
-
-import swt.cw.reg.RegViwer;
 import org.eclipse.swt.widgets.ToolBar;
 import org.eclipse.swt.widgets.ToolItem;
-import org.eclipse.swt.events.SelectionAdapter;
-import org.eclipse.swt.events.SelectionEvent;
+import org.eclipse.wb.swt.SWTResourceManager;
+
+import gb.Main;
+import swt.cw.reg.RegViwer;
 
 public class GerenciaView extends Composite implements Content {
 	
@@ -73,11 +77,19 @@ public class GerenciaView extends Composite implements Content {
 	}
 	
 	protected void setHeader(String txt, int fSystemColorId, int bSystemColorId){
-		lblHeader.setText(txt);
-		lblHeader.setForeground(SWTResourceManager.getColor(fSystemColorId));
-		cmpHeader.setBackground(SWTResourceManager.getColor(bSystemColorId));
-		lblHeader.setBackground(cmpHeader.getBackground());
-		toolBarClose.setBackground(cmpHeader.getBackground());
+		if (Main.isLinux()){
+			lblHeader.setText(" "+txt);
+		}else{
+			lblHeader.setText(txt);
+			lblHeader.setForeground(SWTResourceManager.getColor(fSystemColorId));
+			cmpHeader.setBackground(SWTResourceManager.getColor(bSystemColorId));
+			lblHeader.setBackground(cmpHeader.getBackground());
+			toolBarClose.setBackground(cmpHeader.getBackground());
+		}
+		Font font = lblHeader.getFont();
+		FontData[] fd = font.getFontData();
+		fd[0].setStyle(SWT.BOLD);
+		lblHeader.setFont(new Font(Display.getDefault(),fd));
 	}
 	
 	@Override

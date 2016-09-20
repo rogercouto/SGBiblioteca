@@ -1,8 +1,5 @@
 package gb;
 
-import java.sql.Connection;
-import java.time.format.DateTimeFormatter;
-
 import org.eclipse.swt.graphics.Image;
 import org.eclipse.wb.swt.SWTResourceManager;
 
@@ -13,23 +10,22 @@ import swt.cw.util.Dialog;
 
 public class Main {
 
-	@Deprecated
-	public static final DateTimeFormatter FORMATADOR_D = DateTimeFormatter.ofPattern("dd/MM/yyyy");
-	@Deprecated
-	public static final DateTimeFormatter FORMATADOR_DH = DateTimeFormatter.ofPattern("dd/MM/yyyy HH:mm");
-	
 	public static final Image[] ICONS = new Image[]{
 			SWTResourceManager.getImage(Main.class, "/img/find.png"),
 			SWTResourceManager.getImage(Main.class, "/img/ic_add_circle_black_24dp.png"),
 			SWTResourceManager.getImage(Main.class, "/img/ic_done_black_24dp.png"),
 			SWTResourceManager.getImage(Main.class, "/img/ic_clear_black_24dp.png")
 	};
-	
-	
+
+	public static boolean isLinux(){
+		return System.getProperty("os.name").compareTo("Linux") == 0;
+	}
 	
 	public static void main(String[] args) {
-		Connection connection = ConnectionManager.getConnection();
-		if (connection == null){
+		ConnectionManager.setConnection();
+		if (!ConnectionManager.isSet())
+			return;
+		if (!ConnectionManager.testConnection()){
 			Dialog.message("Não foi possível realizar a conexão bom o banco de dados!");
 			return;
 		}
