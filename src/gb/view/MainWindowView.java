@@ -22,7 +22,7 @@ import swt.cw.util.Screen;
 public class MainWindowView {
 
 	protected Content content = null;
-	
+
 	protected Shell shell;
 	protected Menu menu;
 	protected MenuItem mbtLanamento;
@@ -53,7 +53,7 @@ public class MainWindowView {
 	protected MenuItem mbtConsultaSituacao;
 	protected ToolItem tbtRenovacao;
 	protected MenuItem mbtRenovao;
-	
+
 	public MainWindowView(){
 		super();
 		createContents();
@@ -92,71 +92,71 @@ public class MainWindowView {
 		menu = new Menu(shell, SWT.BAR);
 		shell.setMenuBar(menu);
 		mbtLanamento = new MenuItem(menu, SWT.CASCADE);
-		mbtLanamento.setText("Lançamento");
+		mbtLanamento.setText("Lan\u00e7amento");
 		menu_1 = new Menu(mbtLanamento);
 		mbtLanamento.setMenu(menu_1);
 		mbtEmprstimo = new MenuItem(menu_1, SWT.NONE);
-		mbtEmprstimo.setText("Empréstimo...");
+		mbtEmprstimo.setText("Empr\u00e9stimo...");
 		mbtRenovao = new MenuItem(menu_1, SWT.NONE);
-		mbtRenovao.setText("Renovação...");
+		mbtRenovao.setText("Renova\u00e7\u00e3o...");
 		mbtReserva = new MenuItem(menu_1, SWT.NONE);
 		mbtReserva.setText("Reserva...");
 		mbtDevoluo = new MenuItem(menu_1, SWT.NONE);
-		mbtDevoluo.setText("Devolução...");
+		mbtDevoluo.setText("Devolu\u00e7\u00e3o...");
 		mbtPagamento = new MenuItem(menu_1, SWT.NONE);
 		mbtPagamento.setText("Pagamento...");
 		mbtGerncia = new MenuItem(menu, SWT.CASCADE);
-		mbtGerncia.setText("Gerência");
+		mbtGerncia.setText("Ger\u00eancia");
 		menu_2 = new Menu(mbtGerncia);
 		mbtGerncia.setMenu(menu_2);
 		mbtConsultaSituacao = new MenuItem(menu_2, SWT.NONE);
-		mbtConsultaSituacao.setText("Consulta situação...");
+		mbtConsultaSituacao.setText("Consulta situa\u00e7\u00e3o...");
 		new MenuItem(menu_2, SWT.SEPARATOR);
 		mbtLivrosEx = new MenuItem(menu_2, SWT.NONE);
 		mbtLivrosEx.setText("Livros/Exemplares...");
 		mbtEmprestimos = new MenuItem(menu_2, SWT.NONE);
-		mbtEmprestimos.setText("Emprestimos/Devoluções...");
+		mbtEmprestimos.setText("Emprestimos/Devolu\u00e7\u00f5es...");
 		mbtReservas = new MenuItem(menu_2, SWT.NONE);
 		mbtReservas.setText("Reservas...");
 		mbtUsuarios = new MenuItem(menu_2, SWT.NONE);
-		mbtUsuarios.setText("Usuários...");
+		mbtUsuarios.setText("Usu\u00e1rios...");
 		toolBar = new ToolBar(shell, SWT.FLAT | SWT.RIGHT);
 		toolBar.setBackground(SWTResourceManager.getColor(SWT.COLOR_GRAY));
 		toolBar.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, true, false, 1, 1));
 		tbtEmprestimo = new ToolItem(toolBar, SWT.NONE);
-		tbtEmprestimo.setToolTipText("Lançar empréstimo...");
+		tbtEmprestimo.setToolTipText("Lan\u00e7ar empr\u00e9stimo...");
 		tbtEmprestimo.setImage(SWTResourceManager.getImage(MainWindowView.class, "/img/ic_exit_to_app_black_36dp.png"));
 		tbtRenovacao = new ToolItem(toolBar, SWT.NONE);
-		tbtRenovacao.setToolTipText("Lançar renovação...");
+		tbtRenovacao.setToolTipText("Lan\u00e7ar renova\u00e7\u00e3o...");
 		tbtRenovacao.setImage(SWTResourceManager.getImage(MainWindowView.class, "/img/ic_alarm_add_black_36dp.png"));
 		tbtReserva = new ToolItem(toolBar, SWT.NONE);
-		tbtReserva.setToolTipText("Lançar reserva...");
+		tbtReserva.setToolTipText("Lan\u00e7ar reserva...");
 		tbtReserva.setImage(SWTResourceManager.getImage(MainWindowView.class, "/img/ic_event_black_36dp.png"));
 		tbtDevolucao = new ToolItem(toolBar, SWT.NONE);
-		tbtDevolucao.setToolTipText("Lançar devolução");
+		tbtDevolucao.setToolTipText("Lan\u00e7ar devolu\u00e7\u00e3o");
 		tbtDevolucao.setImage(SWTResourceManager.getImage(MainWindowView.class, "/img/ic_assignment_return_black_36dp.png"));
 		tbtPagamento = new ToolItem(toolBar, SWT.NONE);
-		tbtPagamento.setToolTipText("Lançar pagamento...");
+		tbtPagamento.setToolTipText("Lan\u00e7ar pagamento...");
 		tbtPagamento.setImage(SWTResourceManager.getImage(MainWindowView.class, "/img/ic_assignment_turned_in_black_36dp.png"));
 		toolItem_2 = new ToolItem(toolBar, SWT.SEPARATOR);
 		tbtConsultaSituacao = new ToolItem(toolBar, SWT.NONE);
-		tbtConsultaSituacao.setToolTipText("Consulta situaçao...");
+		tbtConsultaSituacao.setToolTipText("Consulta situa\u00e7ao...");
 		tbtConsultaSituacao.setImage(SWTResourceManager.getImage(MainWindowView.class, "/img/ic_find_in_page_black_36dp.png"));
 		tbtLivrosEx = new ToolItem(toolBar, SWT.NONE);
 		tbtLivrosEx.setToolTipText("Livros/Exemplares...");
 		tbtLivrosEx.setImage(SWTResourceManager.getImage(MainWindowView.class, "/img/ic_assignment_black_36dp.png"));
 		tbtEmprestimos = new ToolItem(toolBar, SWT.NONE);
 		tbtEmprestimos.setImage(SWTResourceManager.getImage(MainWindowView.class, "/img/ic_cached_black_36dp.png"));
-		tbtEmprestimos.setToolTipText("Empréstimos/Devoluções...");
+		tbtEmprestimos.setToolTipText("Empr\u00e9stimos/Devolu\u00e7\u00f5es...");
 		tbtReservas = new ToolItem(toolBar, SWT.NONE);
 		tbtReservas.setToolTipText("Reservas");
 		tbtReservas.setImage(SWTResourceManager.getImage(MainWindowView.class, "/img/ic_receipt_black_36dp.png"));
 		tbtUsuarios = new ToolItem(toolBar, SWT.NONE);
 		tbtUsuarios.setImage(SWTResourceManager.getImage(MainWindowView.class, "/img/ic_account_circle_black_36dp.png"));
-		tbtUsuarios.setToolTipText("Usuários...");
+		tbtUsuarios.setToolTipText("Usu\u00e1rios...");
 		Screen.centralize(shell);
 	}
-	
+
 	private void addListeners(){
 		SelectionListener lancaEmprestimoListener = new SelectionAdapter() {
 			@Override
@@ -239,9 +239,9 @@ public class MainWindowView {
 		mbtUsuarios.addSelectionListener(gerUsuariosListener);
 		tbtUsuarios.addSelectionListener(gerUsuariosListener);
 	}
-	
+
 	protected void clearConteudo(){
-		if ((cmpConteudo != null) && (!cmpConteudo.isDisposed())) 
+		if ((cmpConteudo != null) && (!cmpConteudo.isDisposed()))
 	          cmpConteudo.dispose();
 		cmpConteudo = new Composite(shell, SWT.NONE);
 		GridLayout gl = new GridLayout(1, false);
@@ -252,7 +252,7 @@ public class MainWindowView {
 		cmpConteudo.setLayout(gl);
 	    cmpConteudo.setLayoutData(new GridData(SWT.FILL, SWT.FILL, true, true, 1, 1));
 	}
-	
+
 	protected void setConteudo(Content conteudo){
 		Composite composite = (Composite)conteudo;
 	    composite.setLayoutData(new GridData(SWT.FILL, SWT.FILL, true, true, 1, 1));
@@ -266,25 +266,25 @@ public class MainWindowView {
 		});
 		shell.layout(true);
 	}
-	
+
 	protected void lancaEmprestimo(){}
-	
+
 	protected void lancaRenovacao(){}
-	
+
 	protected void lancaReserva(){}
-	
+
 	protected void lancaDevolucao(){}
-	
+
 	protected void lancaPagamento(){}
-	
-	
+
+
 	protected void consultaSituacao(){}
-	
+
 	protected void abreGerenciaLivrosEx(){}
-	
+
 	protected void abreListaEmprestimos(){}
-	
+
 	protected void abreListaReservas(){}
-	
+
 	protected void abreGerenciaUsuarios(){}
 }

@@ -43,7 +43,7 @@ public class DialogPagamentoView extends Dialog {
 	 */
 	public DialogPagamentoView(Shell parent) {
 		super(parent, SWT.APPLICATION_MODAL | SWT.DIALOG_TRIM);
-		setText("Renovar empréstimo");
+		setText("Renovar empr\u00e9stimo");
 		createContents();
 	}
 
@@ -83,7 +83,7 @@ public class DialogPagamentoView extends Dialog {
 		grpBusca.setLayoutData(gd_grpBusca);
 		lblUsurio = new Label(grpBusca, SWT.NONE);
 		lblUsurio.setLayoutData(new GridData(SWT.RIGHT, SWT.CENTER, false, false, 1, 1));
-		lblUsurio.setText("Usuário: ");
+		lblUsurio.setText("Usu\u00e1rio: ");
 		txtBusca = new Text(grpBusca, SWT.BORDER);
 		txtBusca.addModifyListener(new ModifyListener() {
 			public void modifyText(ModifyEvent arg0) {

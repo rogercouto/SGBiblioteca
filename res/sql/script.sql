@@ -21,7 +21,7 @@ CREATE TABLE livro(
 	livro_id INTEGER NOT NULL PRIMARY KEY AUTO_INCREMENT,
 	titulo VARCHAR(200) NOT NULL,
 	resumo TEXT,
-	isbn INTEGER,
+	isbn BIGINT,
 	cutter VARCHAR(20),
 	editora_id INTEGER,
 	edicao VARCHAR(30),
@@ -74,7 +74,6 @@ CREATE TABLE exemplar(
 	data_aquisicao DATE,
 	origem_id INTEGER,
 	fixo TINYINT NOT NULL DEFAULT 0,
-	reservado TINYINT NOT NULL DEFAULT 0,
 	situacao INTEGER NOT NULL
 );
 

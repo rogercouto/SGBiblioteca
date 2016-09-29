@@ -27,10 +27,8 @@ public class DialogDevolucaoView extends Dialog {
 	protected Group group;
 	protected Composite composite;
 	protected Button btnConfirma;
-	protected Label lblNewLabel;
 	protected Text txtExemplar;
 	protected Button btnBuscar;
-	protected Label lblNewLabel_1;
 	protected Text txtMulta;
 	protected Text txtUsuario;
 
@@ -74,7 +72,7 @@ public class DialogDevolucaoView extends Dialog {
 		gl_group.horizontalSpacing = 0;
 		group.setLayout(gl_group);
 		group.setLayoutData(new GridData(SWT.FILL, SWT.FILL, true, true, 1, 1));
-		lblNewLabel = new Label(group, SWT.NONE);
+		Label lblNewLabel = new Label(group, SWT.NONE);
 		lblNewLabel.setLayoutData(new GridData(SWT.RIGHT, SWT.CENTER, false, false, 1, 1));
 		lblNewLabel.setText("Exemplar:   ");
 		txtExemplar = new Text(group, SWT.BORDER);
@@ -95,11 +93,11 @@ public class DialogDevolucaoView extends Dialog {
 		btnBuscar.setImage(SWTResourceManager.getImage(DialogDevolucaoView.class, "/img/find.png"));
 		Label lblUsurio = new Label(group, SWT.NONE);
 		lblUsurio.setLayoutData(new GridData(SWT.RIGHT, SWT.CENTER, false, false, 1, 1));
-		lblUsurio.setText("Usuário:   ");
+		lblUsurio.setText("Usu\u00e1rio:   ");
 		txtUsuario = new Text(group, SWT.BORDER);
 		txtUsuario.setEditable(false);
 		txtUsuario.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, true, false, 2, 1));
-		lblNewLabel_1 = new Label(group, SWT.NONE);
+		Label lblNewLabel_1 = new Label(group, SWT.NONE);
 		lblNewLabel_1.setLayoutData(new GridData(SWT.RIGHT, SWT.CENTER, false, false, 1, 1));
 		lblNewLabel_1.setText("Multa:   ");
 		txtMulta = new Text(group, SWT.BORDER | SWT.RIGHT);
@@ -124,7 +122,7 @@ public class DialogDevolucaoView extends Dialog {
 		btnConfirma.setText("Confirma");
 		Screen.centralize(shell, getParent());
 	}
-	
+
 	protected void txtExemplarKeyPressed(KeyEvent arg0) {
 	}
 	protected void btnBuscarWidgetSelected(SelectionEvent arg0) {

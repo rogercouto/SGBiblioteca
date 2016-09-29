@@ -17,6 +17,7 @@ import gb.model.Situacao;
 import gb.model.Usuario;
 import gb.model.dao.EmprestimoDAO;
 import gb.model.dao.ExemplarDAO;
+import gb.model.dao.PendenciaDAO;
 import gb.model.dao.ReservaDAO;
 import gb.model.dao.UsuarioDAO;
 import gb.model.exceptions.ValidationException;
@@ -49,13 +50,15 @@ public class DialogReserva extends DialogReservaView {
 		FindDialog dialog = new FindDialog(shell);
 		dialog.setText("Buscar usuario");
 		dialog.addColumn("nome", "Nome", true);
-		dialog.setWidth(0, 400);
+		dialog.addColumn("login", "Login", true);
+		dialog.setWidth(0, 200);
+		dialog.setWidth(0, 100);
 		dialog.setIcons(Main.ICONS);
 		dialog.setFindSource(new FindSource() {
 			@Override
 			public List<?> getList(int index, String text) {
 				UsuarioDAO dao = new UsuarioDAO();
-				List<Usuario> list = dao.findList(text);
+				List<Usuario> list = dao.findList(index, text);
 				return list;
 			}
 		});
@@ -70,16 +73,26 @@ public class DialogReserva extends DialogReservaView {
 		if (usuario != null){
 			UsuarioDAO dao = new UsuarioDAO();
 			int numReserva = dao.getNumReservas(usuario);
-			dao.closeConnection();
-			if (numReserva < usuario.getTipo().getNumLivrosRes()){
-				txtUsuario.setText(usuario.getNome());
-				reserva.setUsuario(usuario);
-				txtExemplar.setText("");
-				reserva.setExemplar(null);
-				txtExemplar.setFocus();
-			}else{
-				Dialog.warning(shell, "Usuário já está com "+numReserva+" reservas pendentes!");
+			if (numReserva >= usuario.getTipo().getNumLivrosRes()){
+				Dialog.warning(shell, "Usuário já está com "+numReserva+" reservas ativas!");
+				dao.closeConnection();
+				return;
 			}
+			EmprestimoDAO eDao = new EmprestimoDAO(dao.getConnection());
+			int numPend = eDao.getNumEmprestimosPendentes(usuario);
+			PendenciaDAO pDao = new PendenciaDAO(dao.getConnection());
+			numPend += pDao.getCount(usuario);
+			if (numPend > 0){
+				Dialog.warning(shell, "Usuário já está com "+numPend+" pendências!");
+				dao.closeConnection();
+				return;
+			}
+			dao.closeConnection();
+			txtUsuario.setText(usuario.getNome());
+			reserva.setUsuario(usuario);
+			txtExemplar.setText("");
+			reserva.setExemplar(null);
+			txtExemplar.setFocus();
 		}
 	}
 	

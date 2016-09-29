@@ -7,7 +7,7 @@ public class Livro {
 
 	private Integer id;
 	private String titulo;
-	private Integer isbn;
+	private Long isbn;
 	private String cutter;
 	private String resumo;
 	private Editora editora;
@@ -16,18 +16,18 @@ public class Livro {
 	private Integer numPaginas;
 	private Assunto assunto;
 	private Integer anoPublicacao;
-	
+
 	private List<Autor> autores = new ArrayList<>();
 	private List<Categoria> categorias = new ArrayList<>();
 	private List<Exemplar> exemplares = new ArrayList<>();
 	private int numExemplares = 0;
-	
+
 	private boolean atualizaAutores = false;
 	private boolean atualizaCategorias = false;
-	
+
 	//Transient
 	private String nomeAutores;
-	
+
 	public Livro() {
 		super();
 	}
@@ -48,11 +48,11 @@ public class Livro {
 		this.titulo = titulo;
 	}
 
-	public Integer getIsbn() {
+	public Long getIsbn() {
 		return isbn;
 	}
 
-	public void setIsbn(Integer isbn) {
+	public void setIsbn(Long isbn) {
 		this.isbn = isbn;
 	}
 
@@ -126,22 +126,22 @@ public class Livro {
 		setNomeAutores();
 		atualizaAutores = true;
 	}
-	
+
 	public void setAutor(int index, Autor autor){
 		autores.set(index, autor);
 		setNomeAutores();
 		atualizaAutores = true;
 	}
-	
+
 	public void removeAutor(int index){
 		autores.remove(index);
 		setNomeAutores();
 		atualizaAutores = true;
 	}
-	
+
 	public boolean atualizaAutores(){
 		return atualizaAutores;
-	}	
+	}
 
 	public List<Categoria> getCategorias() {
 		return categorias;
@@ -155,17 +155,17 @@ public class Livro {
 		categorias.add(categoria);
 		atualizaCategorias = true;
 	}
-	
+
 	public void setCategoria(int index, Categoria categoria){
 		categorias.set(index, categoria);
 		atualizaCategorias = true;
 	}
-	
+
 	public void removeCategoria(int index){
 		categorias.remove(index);
 		atualizaCategorias = true;
 	}
-	
+
 	public boolean atualizaCategorias(){
 		return atualizaCategorias;
 	}
@@ -174,30 +174,38 @@ public class Livro {
 		return numExemplares;
 	}
 
-	public void setNumExemplares(int numExemplares) {
-		this.numExemplares = numExemplares;
+	public void incNumExemplares(int i) {
+		this.numExemplares += i;
 	}
 
-	public void incNumExemplares() {
-		this.numExemplares++;
+	public void decNumExemplares(int i) {
+		this.numExemplares -= i;
 	}
-	
-	public void decNumExemplares() {
-		this.numExemplares--;
-	}
-	
+
 	public List<Exemplar> getExemplares() {
 		return exemplares;
 	}
 
+	public void addExemplar(Exemplar exemplar){
+		exemplares.add(exemplar);
+	}
+	
+	public void setExemplar(int index, Exemplar exemplar){
+		exemplares.set(index, exemplar);
+	}
+	
+	public void removeExemplar(int index){
+		exemplares.remove(index);
+	}
+	
 	public void setExemplares(List<Exemplar> exemplares) {
 		this.exemplares = exemplares;
 	}
-	
+
 	public String toString(){
 		return id+" - "+titulo;
 	}
-	
+
 	private void setNomeAutores(){
 		StringBuilder builder = new StringBuilder();
 		for (Autor autor : autores) {

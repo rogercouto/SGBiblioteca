@@ -74,12 +74,10 @@ public class ReservaDAO {
 			ps.executeUpdate();
 			ps.close();
 			reserva.setId(ConnectionManager.getLastInsertId(connection));
-			sql = "UPDATE exemplar SET reservado = ? WHERE num_registro = ?";
-			ps = connection.prepareStatement(sql);
-			ps.setBoolean(1, true);
-			ps.setInt(2, reserva.getExemplar().getNumRegistro());
-			ps.executeUpdate();
-			ps.close();
+			ExemplarDAO eDao = new ExemplarDAO(connection);
+			Exemplar exemplar = reserva.getExemplar();
+			exemplar.setReservado();
+			eDao.update(exemplar);
 		} catch (SQLException e) {
 			throw new RuntimeException(e.getMessage(), e.getCause());
 		}
@@ -269,7 +267,10 @@ public class ReservaDAO {
 		for (Reserva reserva : list) {
 			Exemplar exemplar = reserva.getExemplar();
 			if (exemplar.isReservado()){
-				exemplar.setReservado(false);
+				if (exemplar.isEmprestado())
+					exemplar.setSituacao(Situacao.EMPRESTADO);
+				else
+					exemplar.setSituacao(Situacao.DISPONIVEL);
 				reserva.setExpirada(true);
 				try {
 					exemplarDao.update(exemplar);

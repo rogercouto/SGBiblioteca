@@ -34,6 +34,10 @@ public class UsuarioDAO {
 		ConnectionManager.closeConnection(connection);
 	}
 
+	public Connection getConnection() {
+		return connection;
+	}
+
 	private void check(Usuario usuario) throws ValidationException{
 		StringBuilder error = new StringBuilder();
 		if (usuario.getNome() == null || usuario.getNome().isEmpty())
@@ -45,7 +49,7 @@ public class UsuarioDAO {
 		}
 		if (usuario.getTipo() == null){
 			if (error.length() != 0)
-				error.append(",\n");
+				error.append(";\n");
 			error.append("Tipo deve ser selecionado");
 		}
 		if (error.length() > 0){
@@ -57,8 +61,8 @@ public class UsuarioDAO {
 	public void insert(Usuario usuario) throws ValidationException{
 		try {
 			check(usuario);
-			String sql = "INSERT INTO usuario(nome,cpf,tipo_id,endereco_id,telefone,celular,email)"
-					+ " VALUES(?, ?, ?, ?, ?, ?, ?)";
+			String sql = "INSERT INTO usuario(nome,cpf,tipo_id,endereco_id,telefone,celular,email,login,senha)"
+					+ " VALUES(?, ?, ?, ?, ?, ?, ?, ? ,?)";
 			PreparedStatement ps = connection.prepareStatement(sql);
 			ps.setString(1, usuario.getNome());
 			ps.setString(2, usuario.getCpf());
@@ -70,6 +74,8 @@ public class UsuarioDAO {
 			ps.setString(5, usuario.getTelefone());
 			ps.setString(6, usuario.getCelular());
 			ps.setString(7, usuario.geteMail());
+			ps.setString(8, usuario.getLogin());
+			ps.setString(9, usuario.getSenha());
 			ps.executeUpdate();
 			Statement st = connection.createStatement();
 			sql = "SELECT LAST_INSERT_ID() AS id";
@@ -89,7 +95,7 @@ public class UsuarioDAO {
 			if (usuario.getId() == null)
 				throw new RuntimeException("Falta id do usu\u00e1rio a ser atualizado!");
 			String sql = "UPDATE usuario SET nome = ?, cpf = ?, tipo_id = ?, endereco_id = ?,"
-					+ " telefone = ?, celular = ?, email = ? WHERE usuario_id = ?";
+					+ " telefone = ?, celular = ?, email = ?, login = ?, senha = ? WHERE usuario_id = ?";
 			PreparedStatement ps = connection.prepareStatement(sql);
 			ps.setString(1, usuario.getNome());
 			ps.setString(2, usuario.getCpf());
@@ -101,7 +107,9 @@ public class UsuarioDAO {
 			ps.setString(5, usuario.getTelefone());
 			ps.setString(6, usuario.getCelular());
 			ps.setString(7, usuario.geteMail());
-			ps.setInt(8, usuario.getId());
+			ps.setString(8, usuario.getLogin());
+			ps.setString(9, usuario.getSenha());
+			ps.setInt(10, usuario.getId());
 			ps.executeUpdate();
 			ps.close();
 		} catch (SQLException e) {
@@ -265,10 +273,10 @@ public class UsuarioDAO {
 		return list;
 	}
 
-	public List<Usuario> findList(String text){
+	public List<Usuario> findList(int index, String text){
 		List<Usuario> list = new ArrayList<>();
 		try {
-			String sql = getSelectSql("UPPER(u.nome) LIKE ?");
+			String sql = getSelectSql(index == 0 ? "UPPER(u.nome) LIKE ?" : "UPPER(u.login) LIKE ?");
 			PreparedStatement ps = connection.prepareStatement(sql);
 			ps.setString(1, "%"+text.toUpperCase()+"%");
 
@@ -301,7 +309,7 @@ public class UsuarioDAO {
 		}
 	}
 	
-	public int getNumEmprestimos(Usuario usuario){
+	public int getNumEmprestimosAtivos(Usuario usuario){
 		try {
 			int numReservas = 0;
 			String sql = "select count(emprestimo_id) from emprestimo where data_hora_devolucao IS NULL AND usuario_id = ?";

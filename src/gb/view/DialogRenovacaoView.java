@@ -44,7 +44,7 @@ public class DialogRenovacaoView extends Dialog {
 	 */
 	public DialogRenovacaoView(Shell parent) {
 		super(parent, SWT.APPLICATION_MODAL | SWT.DIALOG_TRIM);
-		setText("Renovar empréstimo");
+		setText("Renovar empr\u00e9stimo");
 		createContents();
 	}
 

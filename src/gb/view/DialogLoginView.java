@@ -23,9 +23,7 @@ public class DialogLoginView {
 	protected Object result;
 	protected Shell shell;
 	protected Group group;
-	protected Label lblNewLabel;
 	protected Text txtUsuario;
-	protected Label lblNewLabel_1;
 	protected Text txtSenha;
 	protected Button btnOk;
 
@@ -61,16 +59,20 @@ public class DialogLoginView {
 	 * Create contents of the dialog.
 	 */
 	private void createContents() {
-		shell = new Shell();
+		shell = new Shell(SWT.DIALOG_TRIM);
 		shell.setSize(450, 300);
-		shell.setText("Sistema de Gerenciamento de Biblioteca - Login");
+		shell.setText("SGBiblioteca - Login");
 		shell.setLayout(new GridLayout(1, false));
 		group = new Group(shell, SWT.NONE);
-		group.setLayout(new GridLayout(2, false));
-		lblNewLabel = new Label(group, SWT.NONE);
+		GridLayout gl_group = new GridLayout(2, false);
+		gl_group.marginHeight = 15;
+		gl_group.marginWidth = 15;
+		group.setLayout(gl_group);
+		Label lblNewLabel = new Label(group, SWT.NONE);
+		lblNewLabel.setAlignment(SWT.RIGHT);
 		lblNewLabel.setLayoutData(new GridData(SWT.RIGHT, SWT.CENTER, false, false, 1, 1));
 		lblNewLabel.setBounds(0, 0, 71, 17);
-		lblNewLabel.setText("Usuário:");
+		lblNewLabel.setText("Usu\u00e1rio:");
 		txtUsuario = new Text(group, SWT.BORDER);
 		txtUsuario.addKeyListener(new KeyAdapter() {
 			@Override
@@ -79,9 +81,9 @@ public class DialogLoginView {
 			}
 		});
 		GridData gd_txtUsuario = new GridData(SWT.FILL, SWT.CENTER, true, false, 1, 1);
-		gd_txtUsuario.widthHint = 150;
+		gd_txtUsuario.widthHint = 160;
 		txtUsuario.setLayoutData(gd_txtUsuario);
-		lblNewLabel_1 = new Label(group, SWT.NONE);
+		Label lblNewLabel_1 = new Label(group, SWT.NONE);
 		lblNewLabel_1.setLayoutData(new GridData(SWT.RIGHT, SWT.CENTER, false, false, 1, 1));
 		lblNewLabel_1.setText("Senha:");
 		txtSenha = new Text(group, SWT.BORDER | SWT.PASSWORD);

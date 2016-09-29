@@ -27,7 +27,7 @@ import gb.Main;
 import swt.cw.table.DataViwer;
 
 public class ListaView extends Composite implements Content{
-	
+
 	protected Composite cmpHeader;
 	protected Label lblHeader;
 	protected Composite composite;
@@ -42,8 +42,7 @@ public class ListaView extends Composite implements Content{
 	protected Button btnCancelar;
 	protected ToolBar toolBarClose;
 	protected ToolItem tbtFechar;
-	
-	
+
 	/**
 	 * Create the composite.
 	 * @param parent
@@ -92,7 +91,7 @@ public class ListaView extends Composite implements Content{
 		});
 		btnCancelar.setImage(SWTResourceManager.getImage(ListaView.class, "/img/ic_remove_circle_black_24dp.png"));
 		Label lblPerodo = new Label(composite, SWT.NONE);
-		lblPerodo.setText("Período:");
+		lblPerodo.setText("Per\u00edodo:");
 		dtIni = new DateTime(composite, SWT.BORDER | SWT.SHORT);
 		dtIni.addSelectionListener(new SelectionAdapter() {
 			@Override
@@ -104,7 +103,7 @@ public class ListaView extends Composite implements Content{
 		gd_dtIni.widthHint = 150;
 		dtIni.setLayoutData(gd_dtIni);
 		Label lblAt = new Label(composite, SWT.NONE);
-		lblAt.setText("até");
+		lblAt.setText("at\u00e9");
 		dtFim = new DateTime(composite, SWT.BORDER | SWT.SHORT);
 		dtFim.addSelectionListener(new SelectionAdapter() {
 			@Override
@@ -117,7 +116,7 @@ public class ListaView extends Composite implements Content{
 		dtFim.setLayoutData(gd_dtFim);
 		Label lblBusca = new Label(composite, SWT.NONE);
 		lblBusca.setLayoutData(new GridData(SWT.RIGHT, SWT.CENTER, true, false, 2, 1));
-		lblBusca.setText("Usuário:");
+		lblBusca.setText("Usu\u00e1rio:");
 		txtBusca = new Text(composite, SWT.BORDER);
 		txtBusca.addKeyListener(new KeyAdapter() {
 			@Override
@@ -168,7 +167,7 @@ public class ListaView extends Composite implements Content{
 	protected void checkSubclass() {
 		// Disable the check that prevents subclassing of SWT components
 	}
-	
+
 	public void refresh(){
 		table.refresh();
 	}
@@ -177,7 +176,7 @@ public class ListaView extends Composite implements Content{
 		btnDetalhes.setEnabled(table.getSelectionIndex() >= 0);
 		btnCancelar.setEnabled(table.getSelectionIndex() >= 0);
 	}
-	
+
 	protected void setHeader(String txt, int fSystemColorId, int bSystemColorId){
 		if (Main.isLinux()){
 			lblHeader.setText(" "+txt);
@@ -193,11 +192,11 @@ public class ListaView extends Composite implements Content{
 		fd[0].setStyle(SWT.BOLD);
 		lblHeader.setFont(new Font(Display.getDefault(),fd));
 	}
-	
+
 	protected void tbtFecharWidgetSelected(SelectionEvent arg0) {
 		dispose();
 	}
-	
+
 	protected void btnBuscarWidgetSelected(SelectionEvent arg0) {
 	}
 	protected void dtIniWidgetSelected(SelectionEvent arg0) {

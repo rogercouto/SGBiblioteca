@@ -17,6 +17,7 @@ import gb.model.Secao;
 import gb.model.Situacao;
 import gb.model.data.ConnectionManager;
 import gb.model.exceptions.ValidationException;
+import gb.util.NumericUtil;
 import gb.util.TemporalUtil;
 
 public class ExemplarDAO {
@@ -37,12 +38,28 @@ public class ExemplarDAO {
         ConnectionManager.closeConnection(connection);
     }
 
-	private void check(Exemplar exemplar) throws ValidationException{
+	private void check(Exemplar exemplar) throws ValidationException, SQLException{
         StringBuilder error = new StringBuilder();
         if (exemplar.getNumRegistro() == null)
             error.append("N\u00famero do registro deve ser informado");
         else if (exemplar.getNumRegistro() == 0)
         	error.append("N\u00famero do registro n\u00e3o pode ser zero");
+        else{
+        	String sql = "SELECT count(*) FROM exemplar WHERE num_registro = ?";
+        	PreparedStatement ps = connection.prepareStatement(sql);
+        	ps.setInt(1, exemplar.getNumRegistro());
+        	ResultSet result = ps.executeQuery();
+        	int nr = 0;
+        	if (result.next())
+        		nr = result.getInt(1);
+        	result.close();
+        	ps.close();
+        	if (nr > 0){
+        		if (error.length() > 0)
+                    error.append(";\n");
+                error.append("Já existe um livro com esse Número!");
+        	}
+        }
         if (exemplar.getLivro() == null){
             if (error.length() > 0)
                 error.append(";\n");
@@ -57,7 +74,7 @@ public class ExemplarDAO {
 	public void insert(Exemplar exemplar) throws ValidationException{
 		try {
 			check(exemplar);
-			String sql = "INSERT INTO exemplar VALUES(?, ?, ?, ?, ?, ?, ?, ?)";
+			String sql = "INSERT INTO exemplar VALUES(?, ?, ?, ?, ?, ?, ?)";
 			PreparedStatement ps = connection.prepareStatement(sql);
 			ps.setObject(1, exemplar.getNumRegistro());
 			ps.setObject(2, exemplar.getLivro() != null ? exemplar.getLivro().getId() : null);
@@ -68,8 +85,7 @@ public class ExemplarDAO {
 					);
 			ps.setObject(5, exemplar.getOrigem() != null ? exemplar.getOrigem().getId() : null);
 			ps.setBoolean(6, exemplar.isFixo());
-			ps.setBoolean(7, exemplar.isReservado());
-			ps.setInt(8, exemplar.getSituacao().getValue());
+			ps.setInt(7, exemplar.getSituacao().getValue());
 			ps.executeUpdate();
 			ps.close();
 		} catch (SQLException e) {
@@ -83,7 +99,7 @@ public class ExemplarDAO {
 			if (exemplar.getNumRegistro() == null)
 				throw new RuntimeException("Id do exemplar n\u00e3o pode ser null!");
 			String sql = "UPDATE exemplar SET livro_id = ?, secao_id = ?,"
-					+ " data_aquisicao = ?, origem_id = ?, fixo = ?, reservado = ?, situacao = ?"
+					+ " data_aquisicao = ?, origem_id = ?, fixo = ?, situacao = ?"
 					+ " WHERE num_registro = ?";
 			PreparedStatement ps = connection.prepareStatement(sql);
 			ps.setObject(1, exemplar.getLivro() != null ? exemplar.getLivro().getId() : null);
@@ -94,9 +110,8 @@ public class ExemplarDAO {
 					);
 			ps.setObject(4, exemplar.getOrigem() != null ? exemplar.getOrigem().getId() : null);
 			ps.setBoolean(5, exemplar.isFixo());
-			ps.setBoolean(6, exemplar.isReservado());
-			ps.setInt(7, exemplar.getSituacao().getValue());
-			ps.setInt(8, exemplar.getNumRegistro());
+			ps.setInt(6, exemplar.getSituacao().getValue());
+			ps.setInt(7, exemplar.getNumRegistro());
 			ps.executeUpdate();
 			ps.close();
 		} catch (SQLException e) {
@@ -193,7 +208,6 @@ public class ExemplarDAO {
 		exemplar.setOrigem(getOrigem(result));
 		exemplar.setFixo(result.getBoolean("fixo"));
 		exemplar.setSecao(getSecao(result));
-		exemplar.setReservado(result.getBoolean("reservado"));
 		exemplar.setSituacao(Situacao.getSituacao(result.getInt("e.situacao")));
 		return exemplar;
 	}
@@ -301,15 +315,6 @@ public class ExemplarDAO {
 		}
 	}
 	
-	private static boolean isNumeric(String string){
-		char[] ca = string.toCharArray();
-		for (char c : ca) {
-			if (!Character.isDigit(c))
-				return false;
-		}
-		return true;
-	}
-	
 	public List<Exemplar> getList(Situacao situacao){
 		try {
 			String sql = getSelectSql("e.situacao = ?");
@@ -341,10 +346,10 @@ public class ExemplarDAO {
 				return getList(situacao);
 		}else{
 			if (index == 0){
-				if (!isNumeric(text))
+				if (!NumericUtil.isInteger(text))
 					return new ArrayList<>();
 				List<Exemplar> list = new ArrayList<>();
-				Exemplar exemplar = get(Integer.parseInt(text));
+				Exemplar exemplar = get(NumericUtil.toInteger(text));
 				if (exemplar != null && (situacao == null || exemplar.getSituacao().equals(situacao)))
 					list.add(exemplar);
 				return list;

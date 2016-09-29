@@ -6,6 +6,7 @@ import java.util.List;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.events.KeyEvent;
 import org.eclipse.swt.events.SelectionEvent;
+import org.eclipse.swt.events.VerifyEvent;
 import org.eclipse.swt.widgets.Shell;
 
 import gb.Main;
@@ -18,6 +19,7 @@ import gb.model.dao.TipoUsuarioDAO;
 import gb.model.dao.UsuarioDAO;
 import gb.model.data.ConnectionManager;
 import gb.model.exceptions.ValidationException;
+import gb.util.NumericUtil;
 import gb.view.DialogUsuarioView;
 import swt.cw.Customizer;
 import swt.cw.dialog.FindDialog;
@@ -90,6 +92,10 @@ public class DialogUsuario extends DialogUsuarioView {
 			if (endereco.getComplemento() != null)
 				txtComplemento.setText(endereco.getComplemento());
 		}
+		if (usuario.getLogin() != null)
+			txtLogin.setText(usuario.getLogin());
+		if (usuario.getSenha() != null)
+			txtSenha.setText(usuario.getSenha());
 	}
 	
 	private void buscaCidade(){
@@ -175,7 +181,7 @@ public class DialogUsuario extends DialogUsuarioView {
 			else
 				usuario.getEndereco().setLogradouro(null);
 			if (txtNumero.getText().trim().length() > 0)
-				usuario.getEndereco().setNumero(Integer.parseInt(txtNumero.getText()));
+				usuario.getEndereco().setNumero(NumericUtil.toInteger(txtNumero.getText()));
 			else
 				usuario.getEndereco().setNumero(null);
 			if (txtBairro.getText().trim().length() > 0)
@@ -191,6 +197,10 @@ public class DialogUsuario extends DialogUsuarioView {
 			else
 				usuario.getEndereco().setComplemento(null);
 		}
+		if (txtLogin.getText().trim().length() > 0)
+			usuario.setLogin(txtLogin.getText().trim());
+		if (txtSenha.getText().trim().length() > 0)
+			usuario.setSenha(txtSenha.getText());
 		Connection connection = ConnectionManager.getConnection();
 		try {
 			EnderecoDAO enderecoDAO = new EnderecoDAO(connection);
@@ -221,4 +231,8 @@ public class DialogUsuario extends DialogUsuarioView {
 		}
 	}
 
+	protected void txtLoginVerifyText(VerifyEvent arg0) {
+		arg0.text = arg0.text.toUpperCase();
+	}
+	
 }

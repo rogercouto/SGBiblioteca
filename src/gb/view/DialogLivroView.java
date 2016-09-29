@@ -59,7 +59,6 @@ public class DialogLivroView extends Dialog {
 	protected Button btnBuscaAutor;
 	protected List lstAutores;
 	protected Button btnRemAutor;
-	protected Button btnAddAutor;
 	protected List lstCategorias;
 	protected Button btnAddCategoria;
 	protected Button btnRemCategoria;
@@ -70,6 +69,7 @@ public class DialogLivroView extends Dialog {
 	protected ToolItem tbtRemExemplar;
 	protected Text txtAnoPublicacao;
 	protected Combo cmbAddCategoria;
+	protected Label lblNewLabel_10;
 
 	/**
 	 * Create the dialog.
@@ -131,7 +131,7 @@ public class DialogLivroView extends Dialog {
 		GridData gd_lblNewLabel = new GridData(SWT.RIGHT, SWT.CENTER, false, false, 1, 1);
 		gd_lblNewLabel.widthHint = 80;
 		lblNewLabel.setLayoutData(gd_lblNewLabel);
-		lblNewLabel.setText("Título:");
+		lblNewLabel.setText("*T\u00edtulo:");
 		txtTitulo = new Text(tab1, SWT.BORDER);
 		GridData gd_txtTitulo = new GridData(SWT.FILL, SWT.CENTER, true, false, 3, 1);
 		gd_txtTitulo.widthHint = 250;
@@ -145,18 +145,17 @@ public class DialogLivroView extends Dialog {
 		txtResumo.setLayoutData(gd_txtResumo);
 		Label lblNewLabel_2 = new Label(tab1, SWT.NONE);
 		lblNewLabel_2.setLayoutData(new GridData(SWT.RIGHT, SWT.CENTER, false, false, 1, 1));
-		lblNewLabel_2.setText("ISBN:");
+		lblNewLabel_2.setText("*ISBN:");
 		txtISBN = new Text(tab1, SWT.BORDER);
-		txtISBN.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, false, false, 1, 1));
+		txtISBN.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, false, false, 2, 1));
+		txtISBN.setTextLimit(13);
 		txtISBN.setText("");
-		new Label(tab1, SWT.NONE);
 		new Label(tab1, SWT.NONE);
 		Label lblNewLabel_3 = new Label(tab1, SWT.NONE);
 		lblNewLabel_3.setLayoutData(new GridData(SWT.RIGHT, SWT.CENTER, false, false, 1, 1));
 		lblNewLabel_3.setText("Cutter:");
 		txtCutter = new Text(tab1, SWT.BORDER);
-		txtCutter.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, false, false, 1, 1));
-		new Label(tab1, SWT.NONE);
+		txtCutter.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, false, false, 2, 1));
 		new Label(tab1, SWT.NONE);
 		Label lblNewLabel_4 = new Label(tab1, SWT.NONE);
 		lblNewLabel_4.setLayoutData(new GridData(SWT.RIGHT, SWT.CENTER, false, false, 1, 1));
@@ -165,7 +164,7 @@ public class DialogLivroView extends Dialog {
 		cmbEditora.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, true, false, 3, 1));
 		Label lblNewLabel_5 = new Label(tab1, SWT.NONE);
 		lblNewLabel_5.setLayoutData(new GridData(SWT.RIGHT, SWT.CENTER, false, false, 1, 1));
-		lblNewLabel_5.setText("Edição:");
+		lblNewLabel_5.setText("Edi\u00e7\u00e3o:");
 		txtEdicao = new Text(tab1, SWT.BORDER);
 		txtEdicao.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, true, false, 1, 1));
 		new Label(tab1, SWT.NONE);
@@ -177,7 +176,7 @@ public class DialogLivroView extends Dialog {
 		txtVolume.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, true, false, 1, 1));
 		Label lblNewLabel_7 = new Label(tab1, SWT.NONE);
 		lblNewLabel_7.setLayoutData(new GridData(SWT.RIGHT, SWT.CENTER, false, false, 1, 1));
-		lblNewLabel_7.setText("Nº paginas:");
+		lblNewLabel_7.setText("N\u00ba paginas:");
 		txtNumPag = new Text(tab1, SWT.BORDER);
 		txtNumPag.setTextLimit(5);
 		txtNumPag.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, true, false, 1, 1));
@@ -195,7 +194,7 @@ public class DialogLivroView extends Dialog {
 		Label lblNewLabel_9 = new Label(tab1, SWT.NONE);
 		lblNewLabel_9.setLayoutData(new GridData(SWT.RIGHT, SWT.CENTER, false, false, 1, 1));
 		lblNewLabel_9.setAlignment(SWT.RIGHT);
-		lblNewLabel_9.setText("Ano publicação:");
+		lblNewLabel_9.setText("Ano publica\u00e7\u00e3o:");
 		txtAnoPublicacao = new Text(tab1, SWT.BORDER);
 		txtAnoPublicacao.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, false, false, 1, 1));
 		new Label(tab1, SWT.NONE);
@@ -248,16 +247,6 @@ public class DialogLivroView extends Dialog {
 			}
 		});
 		lstAutores.setLayoutData(new GridData(SWT.FILL, SWT.FILL, false, true, 1, 2));
-		btnAddAutor = new Button(tab2, SWT.NONE);
-		btnAddAutor.setToolTipText("Adicionar autor");
-		btnAddAutor.addSelectionListener(new SelectionAdapter() {
-			@Override
-			public void widgetSelected(SelectionEvent arg0) {
-				btnAddAutorWidgetSelected(arg0);
-			}
-		});
-		btnAddAutor.setImage(SWTResourceManager.getImage(DialogLivroView.class, "/img/ic_add_box_black_18dp.png"));
-		new Label(tab2, SWT.NONE);
 		btnRemAutor = new Button(tab2, SWT.NONE);
 		btnRemAutor.setToolTipText("Remover autor");
 		btnRemAutor.addSelectionListener(new SelectionAdapter() {
@@ -266,8 +255,11 @@ public class DialogLivroView extends Dialog {
 				btnRemAutorWidgetSelected(arg0);
 			}
 		});
-		btnRemAutor.setLayoutData(new GridData(SWT.LEFT, SWT.BOTTOM, false, false, 1, 1));
+		btnRemAutor.setLayoutData(new GridData(SWT.LEFT, SWT.TOP, false, false, 1, 1));
 		btnRemAutor.setImage(SWTResourceManager.getImage(DialogLivroView.class, "/img/ic_remove_circle_black_18dp.png"));
+		btnRemAutor.setEnabled(false);
+		new Label(tab2, SWT.NONE);
+		new Label(tab2, SWT.NONE);
 		Label lblNewLabel_13 = new Label(tab2, SWT.NONE);
 		lblNewLabel_13.setLayoutData(new GridData(SWT.RIGHT, SWT.CENTER, false, false, 1, 1));
 		lblNewLabel_13.setText("Adicionar categoria:   ");
@@ -289,7 +281,17 @@ public class DialogLivroView extends Dialog {
 				cmbAddCategoriaKeyPressed(arg0);
 			}
 		});
-		cmbAddCategoria.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, true, false, 2, 1));
+		cmbAddCategoria.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, true, false, 1, 1));
+		btnAddCategoria = new Button(tab2, SWT.NONE);
+		btnAddCategoria.setToolTipText("Adicionar categoria");
+		btnAddCategoria.setEnabled(false);
+		btnAddCategoria.addSelectionListener(new SelectionAdapter() {
+			@Override
+			public void widgetSelected(SelectionEvent arg0) {
+				btnAddCategoriaWidgetSelected(arg0);
+			}
+		});
+		btnAddCategoria.setImage(SWTResourceManager.getImage(DialogLivroView.class, "/img/ic_add_box_black_18dp.png"));
 		Label lblNewLabel_15 = new Label(tab2, SWT.NONE);
 		lblNewLabel_15.setLayoutData(new GridData(SWT.RIGHT, SWT.CENTER, false, false, 1, 1));
 		lblNewLabel_15.setText("Categorias:   ");
@@ -307,17 +309,6 @@ public class DialogLivroView extends Dialog {
 			}
 		});
 		lstCategorias.setLayoutData(new GridData(SWT.FILL, SWT.FILL, false, true, 1, 2));
-		btnAddCategoria = new Button(tab2, SWT.NONE);
-		btnAddCategoria.setToolTipText("Adicionar categoria");
-		btnAddCategoria.setEnabled(false);
-		btnAddCategoria.addSelectionListener(new SelectionAdapter() {
-			@Override
-			public void widgetSelected(SelectionEvent arg0) {
-				btnAddCategoriaWidgetSelected(arg0);
-			}
-		});
-		btnAddCategoria.setImage(SWTResourceManager.getImage(DialogLivroView.class, "/img/ic_add_box_black_18dp.png"));
-		new Label(tab2, SWT.NONE);
 		btnRemCategoria = new Button(tab2, SWT.NONE);
 		btnRemCategoria.setToolTipText("Remover categoria");
 		btnRemCategoria.setEnabled(false);
@@ -327,8 +318,10 @@ public class DialogLivroView extends Dialog {
 				btnRemCategoriaWidgetSelected(arg0);
 			}
 		});
-		btnRemCategoria.setLayoutData(new GridData(SWT.LEFT, SWT.BOTTOM, false, false, 1, 1));
+		btnRemCategoria.setLayoutData(new GridData(SWT.LEFT, SWT.TOP, false, false, 1, 1));
 		btnRemCategoria.setImage(SWTResourceManager.getImage(DialogLivroView.class, "/img/ic_remove_circle_black_18dp.png"));
+		new Label(tab2, SWT.NONE);
+		new Label(tab2, SWT.NONE);
 		tbtmAvanado = new CTabItem(tabFolder, SWT.NONE);
 		tbtmAvanado.setText("Exemplares");
 		tab3 = new Composite(tabFolder, SWT.NONE);
@@ -365,7 +358,7 @@ public class DialogLivroView extends Dialog {
 		tableExemplares.setLayoutData(new GridData(SWT.FILL, SWT.FILL, true, true, 1, 1));
 		composite = new Composite(shell, SWT.NONE);
 		composite.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, true, false, 1, 1));
-		composite.setLayout(new GridLayout(1, false));
+		composite.setLayout(new GridLayout(2, false));
 		btnSalvar = new Button(composite, SWT.NONE);
 		btnSalvar.addSelectionListener(new SelectionAdapter() {
 			@Override
@@ -375,8 +368,9 @@ public class DialogLivroView extends Dialog {
 		});
 		btnSalvar.setImage(SWTResourceManager.getImage(DialogLivroView.class, "/img/ic_save_black_24dp.png"));
 		btnSalvar.setText("Salvar");
-		btnAddAutor.setEnabled(false);
-		btnRemAutor.setEnabled(false);
+		lblNewLabel_10 = new Label(composite, SWT.NONE);
+		lblNewLabel_10.setLayoutData(new GridData(SWT.RIGHT, SWT.CENTER, true, false, 1, 1));
+		lblNewLabel_10.setText("*: Preenchimento obrigat\u00f3rio");
 		tableExemplares.addListener(SWT.Selection, new Listener() {
 			@Override
 			public void handleEvent(Event arg0) {
@@ -404,53 +398,51 @@ public class DialogLivroView extends Dialog {
 		shell.pack();
 		Screen.centralize(shell, getParent());
 	}
-	
+
 	protected void lstAutoresWidgetSelected(SelectionEvent arg0) {}
-	
+
 	protected void btnBuscaAutorWidgetSelected(SelectionEvent arg0) {}
-	
-	protected void btnAddAutorWidgetSelected(SelectionEvent arg0) {}
-	
+
 	protected void btnRemAutorWidgetSelected(SelectionEvent arg0) {}
-	
+
 	protected void txtBuscaAutorKeyPressed(KeyEvent arg0) {}
-	
+
 	protected void lstAutoresKeyPressed(KeyEvent arg0) {}
-	
+
 	protected void cmbAddCategoriaKeyPressed(KeyEvent arg0) {}
-	
+
 	protected void btnAddCategoriaWidgetSelected(SelectionEvent arg0) {}
-	
+
 	protected void btnRemCategoriaWidgetSelected(SelectionEvent arg0) {}
-	
+
 	protected void lstCategoriaKeyPressed(KeyEvent arg0) {}
-	
+
 	protected void cmbAddCategoriaWidgetSelected(SelectionEvent arg0) {}
-	
+
 	protected void cmbAddCategoriaModifyText(ModifyEvent arg0) {}
-	
+
 	protected void lstCategoriasWidgetSelected(SelectionEvent arg0) {}
-	
+
 	protected void btnSalvarWidgetSelected(SelectionEvent arg0) {}
-	
+
 	protected void cmbAssuntoKeyPressed(KeyEvent arg0) {}
-	
+
 	protected void shellKeyTraversed(TraverseEvent arg0) {}
-	
+
 	protected void shellShellClosed(ShellEvent arg0) {}
-	
+
 	protected void tableExemplaresSelectionEvent(Event arg0){}
-	
+
 	protected void tableExemplaresMouseDownEvent(Event arg0){}
-	
+
 	protected void tableExemplaresMouseDoubleClickEvent(Event arg0){}
-	
+
 	protected void tableExemplaresKeyDownEvent(Event arg0){}
-	
+
 	protected void tbtAddExemplarWidgetSelected(SelectionEvent arg0) {}
-	
+
 	protected void tbtEdtExemplarWidgetSelected(SelectionEvent arg0) {}
-	
+
 	protected void tbtRemExemplarWidgetSelected(SelectionEvent arg0) {}
-	
+
 }

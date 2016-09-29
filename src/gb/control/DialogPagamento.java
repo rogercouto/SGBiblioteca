@@ -38,12 +38,14 @@ public class DialogPagamento extends DialogPagamentoView {
 	private void busca(){
 		FindDialog dialog = new FindDialog(shell);
 		dialog.addColumn("nome", "Nome", true);
+		dialog.addColumn("login", "Login", true);
 		dialog.setWidth(0, 200);
+		dialog.setWidth(0, 100);
 		dialog.setFindSource(new FindSource() {
 			@Override
 			public List<?> getList(int index, String text) {
 				UsuarioDAO dao = new UsuarioDAO();
-				List<Usuario> list = dao.findList(text);
+				List<Usuario> list = dao.findList(index, text);
 				dao.closeConnection();
 				return list;
 			}

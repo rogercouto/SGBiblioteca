@@ -29,6 +29,7 @@ import gb.model.dao.ExemplarDAO;
 import gb.model.dao.LivroDAO;
 import gb.model.data.ConnectionManager;
 import gb.model.exceptions.ValidationException;
+import gb.util.NumericUtil;
 import gb.view.DialogLivroView;
 import swt.cw.Customizer;
 import swt.cw.dialog.FindDialog;
@@ -39,31 +40,31 @@ import swt.cw.util.Dialog;
 public class DialogLivro extends DialogLivroView {
 
 	private Livro livro = null;
-	
+
 	private List<Editora> editoras;
 	private List<Assunto> assuntos;
-	
+
 	private List<Categoria> categorias;
 	private List<Categoria> categoriasDisp;
-	
+
 	private Autor autor = null;
-	
+
 	private boolean modificado = false;
-	
+
 	public DialogLivro(Shell parent) {
 		super(parent);
 		livro = new Livro();
 		shell.setText("Inserir livro");
 		initialize();
 	}
-	
+
 	public DialogLivro(Shell parent, Livro livro){
 		super(parent);
 		this.livro = livro;
 		shell.setText("Editar livro");
 		initialize();
 	}
-	
+
 	private void initialize(){
 		//Preenche as listas de editoras e assuntos
 		Connection connection = ConnectionManager.getConnection();
@@ -84,14 +85,14 @@ public class DialogLivro extends DialogLivroView {
 		Customizer.setNumeric(txtISBN, 0);
 		Customizer.setNumeric(txtNumPag, 0);
 		Customizer.setNumeric(txtAnoPublicacao, 0);
-		tableExemplares.addColumn("numRegistro", "Nº");
-		tableExemplares.addColumn("dataAquisicao", "Data aquisição");
-		tableExemplares.addColumn("secao.descricao", "Seçao");
+		tableExemplares.addColumn("numRegistro", "N\u00ba");
+		tableExemplares.addColumn("dataAquisicao", "Data aquisi\u00e7\u00e3o");
+		tableExemplares.addColumn("secao.descricao", "Se\u00e7ao");
 		//tableExemplares.addColumn("descrSituacao", "Situacao");
 		tableExemplares.setWidth(0, 60);
 		tableExemplares.setWidth(1, 120);
 		tableExemplares.setWidth(2, 120);
-		//Preenche os campos do formulário
+		//Preenche os campos do formul\u00e1rio
 		if (livro.getId() != null){
 			txtTitulo.setText(livro.getTitulo());
 			if (livro.getResumo() != null)
@@ -148,7 +149,7 @@ public class DialogLivro extends DialogLivroView {
 		modificado = false;
 		btnSalvar.setEnabled(false);
 	}
-	
+
 	private void resetComboCategorias(){
 		categoriasDisp = new ArrayList<>();
 		for (Categoria categoria : categorias) {
@@ -158,17 +159,17 @@ public class DialogLivro extends DialogLivroView {
 					disp = false;
 					break;
 				}
-				
+
 			}
 			if (disp)
 				categoriasDisp.add(categoria);
 		}
 		cmbAddCategoria.removeAll();
-		for (Categoria categoria : categoriasDisp) 
+		for (Categoria categoria : categoriasDisp)
 			cmbAddCategoria.add(categoria.getDescricao());
 	}
-	
-	private void buscaAutor(){
+
+	private void buscaAutor(String text){
 		FindDialog dialogAutores = new FindDialog(shell);
 		dialogAutores.setText("Buscar autor");
 		dialogAutores.addColumn("nomeCompleto", "Nome", true);
@@ -190,22 +191,26 @@ public class DialogLivro extends DialogLivroView {
 				return dialog.open();
 			}
 		});
+		if (text != null && text.trim().length() > 0){
+			dialogAutores.setFindText(text);
+			dialogAutores.find();
+		}
 		autor = (Autor)dialogAutores.open();
-		btnAddAutor.setEnabled(autor != null);
-		if (autor != null)
-			txtBuscaAutor.setText(autor.getNomeCompleto());
+		if (autor != null){
+			txtBuscaAutor.setText("");
+			adicionaAutor();
+		}
 	}
-	
+
 	private void adicionaAutor(){
 		if (autor != null){
 			livro.addAutor(autor);
 			lstAutores.add(autor.getNomeCompleto());
 			txtBuscaAutor.setText("");
 			autor = null;
-			btnAddAutor.setEnabled(false);
 		}
 	}
-	
+
 	private void removeAutor(){
 		int index = lstAutores.getSelectionIndex();
 		if (index >= 0 && Dialog.questionExclude()){
@@ -215,8 +220,8 @@ public class DialogLivro extends DialogLivroView {
 			modificado = true;
 		}
 	}
-	
-	private void addCategoria(){
+
+	private void aicionaCategoria(){
 		int index = cmbAddCategoria.getSelectionIndex();
 		if (index < 0){
 			boolean insert = true;
@@ -252,7 +257,7 @@ public class DialogLivro extends DialogLivroView {
 			categoriasDisp.remove(index);
 		}
 	}
-	
+
 	private void removeCategoria(){
 		int index = lstCategorias.getSelectionIndex();
 		if (index >= 0 && Dialog.questionExclude()){
@@ -261,7 +266,7 @@ public class DialogLivro extends DialogLivroView {
 			resetComboCategorias();
 		}
 	}
-	
+
 	private boolean salvar(){
 		Connection connection = ConnectionManager.getConnection();
 		if (txtTitulo.getText().trim().length() > 0)
@@ -273,7 +278,7 @@ public class DialogLivro extends DialogLivroView {
 		else
 			livro.setResumo(null);
 		if (txtISBN.getText().trim().length() > 0)
-			livro.setIsbn(Integer.parseInt(txtISBN.getText()));
+			livro.setIsbn(NumericUtil.toLong(txtISBN.getText()));
 		else
 			livro.setIsbn(null);
 		if (txtCutter.getText().trim().length() > 0)
@@ -341,11 +346,11 @@ public class DialogLivro extends DialogLivroView {
 		else
 			livro.setVolume(null);
 		if (txtNumPag.getText().trim().length() > 0)
-			livro.setNumPaginas(Integer.parseInt(txtNumPag.getText()));
+			livro.setNumPaginas(NumericUtil.toInteger(txtNumPag.getText()));
 		else
 			livro.setNumPaginas(null);
 		if (txtAnoPublicacao.getText().trim().length() > 0){
-			livro.setAnoPublicacao(Integer.parseInt(txtAnoPublicacao.getText()));
+			livro.setAnoPublicacao(NumericUtil.toInteger(txtAnoPublicacao.getText()));
 		}else{
 			livro.setAnoPublicacao(null);
 		}
@@ -366,103 +371,103 @@ public class DialogLivro extends DialogLivroView {
 		}
 		return saved;
 	}
-	
+
 	protected void btnBuscaAutorWidgetSelected(SelectionEvent arg0) {
-		buscaAutor();
+		buscaAutor(txtBuscaAutor.getText());
 	}
-	
+
 	protected void btnAddAutorWidgetSelected(SelectionEvent arg0) {
 		adicionaAutor();
 	}
-	
+
 	protected void btnRemAutorWidgetSelected(SelectionEvent arg0) {
 		removeAutor();
 	}
-	
+
 	protected void lstAutoresWidgetSelected(SelectionEvent arg0) {
 		btnRemAutor.setEnabled(true);
 	}
-	
+
 	protected void txtBuscaAutorKeyPressed(KeyEvent arg0) {
 		if (arg0.keyCode == SWT.CR || arg0.keyCode == SWT.KEYPAD_CR){
 			if (autor != null)
 				adicionaAutor();
 			else
-				buscaAutor();
+				buscaAutor(txtBuscaAutor.getText());
 		}else{
 			autor = null;
 		}
 	}
-	
+
 	protected void lstAutoresKeyPressed(KeyEvent arg0) {
 		if (arg0.keyCode == SWT.DEL)
 			removeAutor();
 	}
-	
+
 	protected void cmbAddCategoriaKeyPressed(KeyEvent arg0) {
 		if (arg0.keyCode == SWT.CR || arg0.keyCode == SWT.KEYPAD_CR)
-			addCategoria();
+			aicionaCategoria();
 	}
-	
+
 	protected void btnAddCategoriaWidgetSelected(SelectionEvent arg0) {
-		addCategoria();
+		aicionaCategoria();
 	}
-	
+
 	protected void btnRemCategoriaWidgetSelected(SelectionEvent arg0) {
 		removeCategoria();
 	}
-	
+
 	protected void lstCategoriaKeyPressed(KeyEvent arg0) {
 		if (arg0.keyCode == SWT.DEL && lstCategorias.getSelectionIndex() >= 0)
 			removeCategoria();
 	}
-	
+
 	protected void cmbAddCategoriaWidgetSelected(SelectionEvent arg0) {
 		btnAddCategoria.setEnabled(true);
 	}
-	
+
 	protected void cmbAddCategoriaModifyText(ModifyEvent arg0) {
 		btnAddCategoria.setEnabled(cmbAddCategoria.getText().trim().length() > 0);
 	}
-	
+
 	protected void lstCategoriasWidgetSelected(SelectionEvent arg0) {
 		btnRemCategoria.setEnabled(true);
 	}
-	
+
 	protected void cmbAssuntoKeyPressed(KeyEvent arg0) {
 		if (arg0.keyCode == SWT.DEL)
 			cmbAssunto.deselectAll();
 	}
-	
+
 	protected void btnSalvarWidgetSelected(SelectionEvent arg0) {
 		salvar();
 	}
-	
+
 	protected void shellKeyTraversed(TraverseEvent arg0) {
 		if (arg0.keyCode == SWT.ESC && modificado)
 			arg0.doit = false;
 	}
-	
+
 	protected void shellShellClosed(ShellEvent arg0) {
-		if (modificado && !Dialog.question(shell, "Os dados ainda não foram salvos;\n Sair mesmo assim?")){
+		if (modificado && !Dialog.question(shell, "Os dados ainda n\u00e3o foram salvos;\n Sair mesmo assim?")){
 			arg0.doit = false;
 		}
 	}
-	
+
 	protected void tableExemplaresSelectionEvent(Event arg0){
 		tbtEdtExemplar.setEnabled(true);
 		tbtRemExemplar.setEnabled(true);
 	}
-	
+
 	protected void tableExemplaresMouseDownEvent(Event arg0){
 		int index = tableExemplares.getSelectionIndex();
 		tbtEdtExemplar.setEnabled(index >= 0);
 		tbtRemExemplar.setEnabled(index >= 0);
 	}
-	
+
 	private boolean verificaEstado(){
 		if (modificado){
-			if (Dialog.question(shell, "Você precisa salvar os dados antes;\nConfirma?"))
+			if (Dialog.question(shell, "Voc\u00ea precisa salvar os dados antes;\nConfirma?"))
 				return salvar();
 			else
 				return false;
@@ -472,29 +477,35 @@ public class DialogLivro extends DialogLivroView {
 			return true;
 		}
 	}
-	
+
 	private void inserirExemplar(){
 		if (verificaEstado()){
 			DialogExemplar dialog = new DialogExemplar(shell, livro);
 			Exemplar exemplar = (Exemplar)dialog.open();
 			if (exemplar != null){
+				livro.incNumExemplares(1);
+				result = livro;
 				tableExemplares.add(exemplar);
-				livro.incNumExemplares();
+				livro.addExemplar(exemplar);
+				result = livro;
 			}
 		}
 	}
-	
+
 	private void editarExemplar(){
 		int index = tableExemplares.getSelectionIndex();
 		if (index >= 0 && verificaEstado()){
 			Exemplar exemplar = (Exemplar)tableExemplares.getSelection();
 			DialogExemplar dialog = new DialogExemplar(shell, exemplar);
 			exemplar = (Exemplar)dialog.open();
-			if (exemplar != null)
+			if (exemplar != null){
 				tableExemplares.set(index, exemplar);
+				livro.setExemplar(index, exemplar);
+				result = livro;
+			}
 		}
 	}
-	
+
 	private void excluirExemplar(){
 		int index = tableExemplares.getSelectionIndex();
 		if (index >= 0 && Dialog.questionExclude()){
@@ -502,32 +513,33 @@ public class DialogLivro extends DialogLivroView {
 			ExemplarDAO dao = new ExemplarDAO();
 			try {
 				dao.delete(exemplar);
+				livro.removeExemplar(index);
 				tableExemplares.remove(index);
-				livro.decNumExemplares();
+				result = livro;
 			} catch (ValidationException e) {
 				Dialog.error(shell, e.getMessage());
 			}
 		}
 	}
-	
+
 	protected void tbtAddExemplarWidgetSelected(SelectionEvent arg0) {
 		inserirExemplar();
 	}
-	
+
 	protected void tableExemplaresMouseDoubleClickEvent(Event arg0){
 		editarExemplar();
 	}
-	
+
 	protected void tbtEdtExemplarWidgetSelected(SelectionEvent arg0) {
 		editarExemplar();
 	}
-	
+
 	protected void tbtRemExemplarWidgetSelected(SelectionEvent arg0) {
 		excluirExemplar();
 	}
-	
+
 	protected void tableExemplaresKeyDownEvent(Event arg0){
 		excluirExemplar();
 	}
-	
+
 }

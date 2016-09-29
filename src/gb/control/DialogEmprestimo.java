@@ -19,6 +19,7 @@ import gb.model.Situacao;
 import gb.model.Usuario;
 import gb.model.dao.EmprestimoDAO;
 import gb.model.dao.ExemplarDAO;
+import gb.model.dao.PendenciaDAO;
 import gb.model.dao.ReservaDAO;
 import gb.model.dao.UsuarioDAO;
 import gb.model.data.ConnectionManager;
@@ -50,13 +51,15 @@ public class DialogEmprestimo extends DialogEmprestimoView {
 		FindDialog dialog = new FindDialog(shell);
 		dialog.setText("Buscar usuario");
 		dialog.addColumn("nome", "Nome", true);
+		dialog.addColumn("login", "Login", true);
 		dialog.setIcons(Main.ICONS);
-		dialog.setWidth(0, 400);
+		dialog.setWidth(0, 200);
+		dialog.setWidth(1, 100);
 		dialog.setFindSource(new FindSource() {
 			@Override
 			public List<?> getList(int index, String text) {
 				UsuarioDAO dao = new UsuarioDAO();
-				List<Usuario> list = dao.findList(text);
+				List<Usuario> list = dao.findList(index, text);
 				return list;
 			}
 		});
@@ -70,18 +73,28 @@ public class DialogEmprestimo extends DialogEmprestimoView {
 		Usuario usuario = (Usuario)dialog.open();
 		if (usuario != null){
 			UsuarioDAO dao = new UsuarioDAO();
-			int numEmprestimos = dao.getNumEmprestimos(usuario);
-			dao.closeConnection();
-			if (numEmprestimos < usuario.getTipo().getNumLivrosEmp()){
-				txtUsuario.setText(usuario.getNome());
-				emprestimo.setUsuario(usuario);
-				txtExemplar.setText("");
-				emprestimo.setExemplar(null);
-				calculaPrevisao();
-				txtExemplar.setFocus();
-			}else{
+			int numEmprestimos = dao.getNumEmprestimosAtivos(usuario);
+			if (numEmprestimos >= usuario.getTipo().getNumLivrosEmp()){
 				Dialog.warning(shell, "Usuário já está com "+numEmprestimos+" livros emprestados!");
+				dao.closeConnection();
+				return;
 			}
+			EmprestimoDAO eDao = new EmprestimoDAO(dao.getConnection());
+			int numPend = eDao.getNumEmprestimosPendentes(usuario);
+			PendenciaDAO pDao = new PendenciaDAO(dao.getConnection());
+			numPend += pDao.getCount(usuario);
+			if (numPend > 1){
+				Dialog.warning(shell, "Usuário já está com "+numPend+" pendências!");
+				dao.closeConnection();
+				return;
+			}
+			dao.closeConnection();
+			txtUsuario.setText(usuario.getNome());
+			emprestimo.setUsuario(usuario);
+			txtExemplar.setText("");
+			emprestimo.setExemplar(null);
+			calculaPrevisao();
+			txtExemplar.setFocus();
 		}
 	}
 	

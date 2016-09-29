@@ -28,6 +28,7 @@ public class GerenciaUsuarios extends GerenciaView {
 		dao.closeConnection();
 		regViwer.addColumn("id", "Nº", false);
 		regViwer.addColumn("nome", "Nome", true);
+		regViwer.addColumn("login", "Login", true);
 		regViwer.addColumn("telefone", "Telefone", false);
 		regViwer.addColumn("celular", "Celular", false);
 		regViwer.addColumn("eMail", "E-mail", false);
@@ -40,7 +41,7 @@ public class GerenciaUsuarios extends GerenciaView {
 			@Override
 			public List<?> getList(int index, LocalDate di, LocalDate df, String text) {
 				UsuarioDAO dao = new UsuarioDAO();
-				List<Usuario> usuarios = dao.findList(text);
+				List<Usuario> usuarios = dao.findList(index, text);
 				dao.closeConnection();
 				return usuarios;
 			}

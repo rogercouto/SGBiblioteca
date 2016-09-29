@@ -99,4 +99,21 @@ public class PendenciaDAO {
 		}
 	}
 	
+	public int getCount(Usuario usuario){
+		try {
+			String sql = "SELECT count(pendencia_id) FROM pendencia WHERE data_hora_pagamento IS NULL AND usuario_id = ?";
+			PreparedStatement ps = connection.prepareStatement(sql);
+			ps.setInt(1, usuario.getId());
+			ResultSet result = ps.executeQuery();
+			int count = 0;
+			if (result.next())
+				count = result.getInt(1);
+			result.close();
+			ps.close();
+			return count;
+		} catch (SQLException e) {
+			throw new RuntimeException(e.getMessage(), e.getCause());
+		}
+	}
+	
 }

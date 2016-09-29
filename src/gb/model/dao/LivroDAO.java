@@ -36,8 +36,22 @@ public class LivroDAO {
     }
 
     private void check(Livro livro) throws ValidationException{
+    	StringBuilder error = new StringBuilder();
         if (livro.getTitulo() == null || livro.getTitulo().isEmpty())
-        	throw new ValidationException("Titulo deve ser informado");
+        	error.append("Título deve ser informado");
+        if (livro.getIsbn() == null){
+        	if (error.length() > 0)
+        		error.append(";\n");
+        	error.append("ISBN deve ser informado");
+        }else if (livro.getIsbn().toString().length() < 10 || livro.getIsbn().toString().length() > 13){
+        	if (error.length() > 0)
+        		error.append(";\n");
+        	error.append("ISBN deve conter de 10 a 13 caracteres");
+        }
+        if (error.length() > 0){
+        	error.append("!");
+        	throw new ValidationException(error.toString());
+        }
     }
 
     private void setValues(Livro livro, PreparedStatement ps) throws SQLException{
@@ -199,7 +213,7 @@ public class LivroDAO {
         Livro livro = new Livro();
         livro.setId(result.getInt("l.livro_id"));
         livro.setTitulo(result.getString("l.titulo"));
-        livro.setIsbn((Integer)result.getObject("l.isbn"));
+        livro.setIsbn((Long)result.getObject("l.isbn"));
         livro.setCutter(result.getString("l.cutter"));
         livro.setResumo(result.getString("l.resumo"));
         livro.setEdicao(result.getString("l.edicao"));
@@ -241,7 +255,6 @@ public class LivroDAO {
             livro.setCategorias(categoriaDAO.getCategorias(livro));
             ExemplarDAO exemplarDAO = new ExemplarDAO(connection);
             livro.setExemplares(exemplarDAO.getList(livro));
-            livro.setNumExemplares(livro.getExemplares().size());
             return livro;
         } catch (SQLException e) {
             throw new RuntimeException(e.getMessage(), e.getCause());
@@ -262,7 +275,6 @@ public class LivroDAO {
                 livro.setCategorias(categoriaDAO.getCategorias(livro));
                 ExemplarDAO exemplarDAO = new ExemplarDAO(connection);
                 livro.setExemplares(exemplarDAO.getList(livro));
-                livro.setNumExemplares(livro.getExemplares().size());
             	list.add(livro);
             }
             result.close();
@@ -288,7 +300,6 @@ public class LivroDAO {
                 livro.setCategorias(categoriaDAO.getCategorias(livro));
                 ExemplarDAO exemplarDAO = new ExemplarDAO(connection);
                 livro.setExemplares(exemplarDAO.getList(livro));
-                livro.setNumExemplares(livro.getExemplares().size());
             	list.add(livro);
             }
             result.close();
@@ -396,7 +407,6 @@ public class LivroDAO {
                 livro.setCategorias(categoriaDAO.getCategorias(livro));
                 ExemplarDAO exemplarDAO = new ExemplarDAO(connection);
                 livro.setExemplares(exemplarDAO.getList(livro));
-                livro.setNumExemplares(livro.getExemplares().size());
             	list.add(livro);
             }
             result.close();
@@ -408,11 +418,11 @@ public class LivroDAO {
             throw new RuntimeException(e.getMessage(), e.getCause());
         }
     }
-    
+
     public List<Livro> findList(List<Autor> autores){
     	return findList(null, null, autores, null);
     }
-    
+
     protected void setAutores(Livro livro){
     	AutorDAO autorDAO = new AutorDAO(connection);
     	List<Autor> list = autorDAO.getList(livro.getId());

@@ -43,9 +43,11 @@ public class TemporalUtil {
 	public static LocalDate getLocalDate(String dbDate){
 		if (dbDate != null){
 			String[] amd = dbDate.split("-");
-			return LocalDate.of(Integer.parseInt(amd[0]),
-					Integer.parseInt(amd[1]),
-					Integer.parseInt(amd[2]));
+			if (amd.length < 3)
+				return null;
+			return LocalDate.of(NumericUtil.toInteger(amd[0]),
+					NumericUtil.toInteger(amd[1]),
+					NumericUtil.toInteger(amd[2]));
 		}
 		return null;
 	}
@@ -53,12 +55,14 @@ public class TemporalUtil {
 	public static LocalDateTime getLocalDateTime(String dbDateTime){
 		if (dbDateTime != null){
 			String[] amdhms = dbDateTime.split("[- :.]");
-			return LocalDateTime.of(Integer.parseInt(amdhms[0]),
-					Integer.parseInt(amdhms[1]),
-					Integer.parseInt(amdhms[2]),
-					Integer.parseInt(amdhms[3]),
-					Integer.parseInt(amdhms[4]),
-					Integer.parseInt(amdhms[5]));
+			if (amdhms.length < 6)
+				return null;
+			return LocalDateTime.of(NumericUtil.toInteger(amdhms[0]),
+					NumericUtil.toInteger(amdhms[1]),
+					NumericUtil.toInteger(amdhms[2]),
+					NumericUtil.toInteger(amdhms[3]),
+					NumericUtil.toInteger(amdhms[4]),
+					NumericUtil.toInteger(amdhms[5]));
 		}
 		return null;
 	}

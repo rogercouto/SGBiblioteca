@@ -86,7 +86,7 @@ public class DialogEmprestimoView extends Dialog {
 		grpUsurio.setLayout(gl_grpUsurio);
 		lblNewLabel = new Label(grpUsurio, SWT.NONE);
 		lblNewLabel.setLayoutData(new GridData(SWT.RIGHT, SWT.CENTER, false, false, 1, 1));
-		lblNewLabel.setText("Usuário:   ");
+		lblNewLabel.setText("Usu\u00e1rio:   ");
 		txtUsuario = new Text(grpUsurio, SWT.BORDER);
 		txtUsuario.addKeyListener(new KeyAdapter() {
 			@Override
@@ -138,7 +138,7 @@ public class DialogEmprestimoView extends Dialog {
 		new Label(grpUsurio, SWT.NONE);
 		lblNewLabel_3 = new Label(grpUsurio, SWT.NONE);
 		lblNewLabel_3.setLayoutData(new GridData(SWT.RIGHT, SWT.CENTER, false, false, 1, 1));
-		lblNewLabel_3.setText("Devolução Prev.:   ");
+		lblNewLabel_3.setText("Devolu\u00e7\u00e3o Prev.:   ");
 		txtPrevDevolucao = new Text(grpUsurio, SWT.BORDER);
 		txtPrevDevolucao.setEditable(false);
 		GridData gd_txtPrevDevolucao = new GridData(SWT.LEFT, SWT.CENTER, true, false, 1, 1);

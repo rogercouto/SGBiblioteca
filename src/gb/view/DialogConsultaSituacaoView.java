@@ -100,21 +100,21 @@ public class DialogConsultaSituacaoView extends Dialog {
 		new TableColumn(table, SWT.LEAD).setWidth(0);//filler
 		new TableColumn(table, SWT.RIGHT).setWidth(120);
 		new TableColumn(table, SWT.LEFT).setWidth(250);
-		shell.setText("Consulta situação");
+		shell.setText("Consulta situa\u00e7\u00e3o");
 		Screen.centralize(shell, getParent());
 	}
-	
+
 	protected void addItem(String key, String value){
 		TableItem item = new TableItem(table, SWT.NONE);
 		item.setText(0, "");//filler
 		item.setText(1, key);
 		item.setText(2, value);
 	}
-	
+
 	protected void addDivisor(){
 		addItem("","");
 	}
-	
+
 	protected void btnBuscarWidgetSelected(SelectionEvent arg0) {
 	}
 	protected void textModifyText(ModifyEvent arg0) {

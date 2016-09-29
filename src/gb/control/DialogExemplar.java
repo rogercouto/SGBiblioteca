@@ -17,6 +17,7 @@ import gb.model.dao.OrigemDAO;
 import gb.model.dao.SecaoDAO;
 import gb.model.data.ConnectionManager;
 import gb.model.exceptions.ValidationException;
+import gb.util.NumericUtil;
 import gb.view.DialogExemplarView;
 import swt.cw.Customizer;
 import swt.cw.util.Dialog;
@@ -25,10 +26,10 @@ public class DialogExemplar extends DialogExemplarView {
 
 	private Exemplar exemplar;
 	private boolean update;
-	
+
 	private List<Secao> secoes;
 	private List<Origem> origens;
-	
+
 	public DialogExemplar(Shell parent, Livro livro) {
 		super(parent);
 		exemplar = new Exemplar();
@@ -38,7 +39,7 @@ public class DialogExemplar extends DialogExemplarView {
 		shell.setText("Inserir exemplar");
 		initialize();
 	}
-	
+
 	public DialogExemplar(Shell parent, Exemplar  exemplar) {
 		super(parent);
 		this.exemplar = exemplar;
@@ -46,7 +47,7 @@ public class DialogExemplar extends DialogExemplarView {
 		shell.setText("Editar exemplar");
 		initialize();
 	}
-	
+
 	private void initialize(){
 		Connection connection = ConnectionManager.getConnection();
 		SecaoDAO secaoDAO = new SecaoDAO(connection);
@@ -54,7 +55,7 @@ public class DialogExemplar extends DialogExemplarView {
 		OrigemDAO origemDAO = new OrigemDAO(connection);
 		origens = origemDAO.getList();
 		ConnectionManager.closeConnection(connection);
-		//Preenche o formulário
+		//Preenche o formul\u00e1rio
 		if (exemplar.getNumRegistro() != null)
 			txtNum.setText(exemplar.getNumRegistro().toString());
 		for (Secao secao : secoes) {
@@ -70,15 +71,15 @@ public class DialogExemplar extends DialogExemplarView {
 		chkFixo.setSelection(exemplar.isFixo());
 		if (!exemplar.getSituacao().equals(Situacao.DISPONIVEL))
 			chkFixo.setEnabled(false);
-		txtSituacao.setText(exemplar.getSituacao().name());		
+		txtSituacao.setText(exemplar.getSituacao().name());
 		Customizer.setNumeric(txtNum, 0);
 		if (update)
 			txtNum.setEditable(false);
 	}
-	
+
 	private void salvar() throws ValidationException{
 		if (!update && txtNum.getText().trim().length() > 0)
-			exemplar.setNumRegistro(Integer.parseInt(txtNum.getText()));
+			exemplar.setNumRegistro(NumericUtil.toInteger(txtNum.getText()));
 		int index = cmbSecao.getSelectionIndex();
 		if (index >= 0){
 			exemplar.setSecao(secoes.get(index));
@@ -129,7 +130,7 @@ public class DialogExemplar extends DialogExemplarView {
 		result = exemplar;
 		shell.close();
 	}
-	
+
 	protected void btnSalvarWidgetSelected(SelectionEvent arg0) {
 		try {
 			salvar();

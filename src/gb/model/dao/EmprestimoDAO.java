@@ -6,6 +6,7 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
 import java.time.LocalDate;
+import java.time.temporal.ChronoUnit;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -15,6 +16,7 @@ import gb.model.Situacao;
 import gb.model.Usuario;
 import gb.model.data.ConnectionManager;
 import gb.model.exceptions.ValidationException;
+import gb.util.NumericUtil;
 import gb.util.TemporalUtil;
 
 public class EmprestimoDAO {
@@ -74,11 +76,10 @@ public class EmprestimoDAO {
             ps.executeUpdate();
             ps.close();
             emprestimo.setId(ConnectionManager.getLastInsertId(connection));
-            sql = "UPDATE exemplar SET situacao = ?, reservado =  ? WHERE num_registro = ?";
+            sql = "UPDATE exemplar SET situacao = ? WHERE num_registro = ?";
 			ps = connection.prepareStatement(sql);
 			ps.setInt(1, Situacao.EMPRESTADO.getValue());
-			ps.setBoolean(2, false);
-			ps.setInt(3, emprestimo.getExemplar().getNumRegistro());
+			ps.setInt(2, emprestimo.getExemplar().getNumRegistro());
 			ps.executeUpdate();
 			ps.close();
         } catch (SQLException e) {
@@ -261,6 +262,23 @@ public class EmprestimoDAO {
             throw new RuntimeException(e.getMessage(), e.getCause());
         }
     }
+   
+    /**
+     * Retorna o número de empréstimos pendentes
+     * @param usuario - Usuario verificado
+     * @return int - total de empréstimos pendentes
+     */
+    public int getNumEmprestimosPendentes(Usuario usuario){
+    	int count = 0;
+    	List<Emprestimo> list = getList(usuario);
+    	for (Emprestimo emprestimo : list) {
+    		if (emprestimo.getDataHoraDevolucao() != null)
+    			continue;
+    		if (ChronoUnit.DAYS.between(emprestimo.getPrevisaoDevolucao(), LocalDate.now()) > 0)
+    			count++;
+		}
+    	return count;
+    }
     
     public Emprestimo getLastEmprestimo(Exemplar exemplar){
     	try {
@@ -326,21 +344,12 @@ public class EmprestimoDAO {
         }
     }
     
-    private boolean isNumeric(String text){
-		char[] ca = text.toCharArray();
-		for (char c : ca) {
-			if (!Character.isDigit(c))
-				return false;
-		}
-		return true;
-	}
-    
     public List<Emprestimo> findList(String text){
     	try {
     		StringBuilder builder = new StringBuilder();
     		builder.append(getSelectSql());
     		builder.append(" WHERE data_hora_devolucao IS NULL ");
-    		if (isNumeric(text)){
+    		if (NumericUtil.isInteger(text)){
     			builder.append("AND (upper(e.num_registro like ?) or (l.isbn like ?))");
     		}else{
     			builder.append("AND (upper(u.nome like ?) or (l.titulo like ?))");

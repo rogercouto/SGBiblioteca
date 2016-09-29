@@ -10,7 +10,6 @@ public class Exemplar {
 	private LocalDate dataAquisicao;
 	private Origem origem;
 	private boolean fixo = false;
-	private boolean reservado = false;
 	private Situacao situacao;
 	
 	public Exemplar() {
@@ -71,13 +70,21 @@ public class Exemplar {
 	}
 
 	public boolean isReservado() {
-		return reservado;
+		return (situacao.equals(Situacao.RESERVADO) || situacao.equals(Situacao.EMPRESTADO_RESERVADO));
+	}
+	public boolean isEmprestado(){
+		return (situacao.equals(Situacao.EMPRESTADO) || situacao.equals(Situacao.EMPRESTADO_RESERVADO));
 	}
 
-	public void setReservado(boolean reservado) {
-		this.reservado = reservado;
+	public void setReservado(){
+		if (situacao.equals(Situacao.DISPONIVEL))
+			situacao = Situacao.RESERVADO;
+		else if (situacao.equals(Situacao.EMPRESTADO))
+			situacao = Situacao.EMPRESTADO_RESERVADO;
+		else
+			throw new RuntimeException("Livro não pode ser reservado!");
 	}
-
+	
 	public Situacao getSituacao() {
 		return situacao;
 	}

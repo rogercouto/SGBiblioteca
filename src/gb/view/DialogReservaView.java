@@ -86,7 +86,7 @@ public class DialogReservaView extends Dialog {
 		grpUsurio.setLayout(gl_grpUsurio);
 		lblNewLabel = new Label(grpUsurio, SWT.NONE);
 		lblNewLabel.setLayoutData(new GridData(SWT.RIGHT, SWT.CENTER, false, false, 1, 1));
-		lblNewLabel.setText("Usuário:   ");
+		lblNewLabel.setText("Usu\u00e1rio:   ");
 		txtUsuario = new Text(grpUsurio, SWT.BORDER);
 		txtUsuario.addKeyListener(new KeyAdapter() {
 			@Override

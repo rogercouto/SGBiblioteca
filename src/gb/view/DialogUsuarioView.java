@@ -19,12 +19,14 @@ import org.eclipse.swt.widgets.Text;
 import org.eclipse.wb.swt.SWTResourceManager;
 
 import swt.cw.util.Screen;
+import org.eclipse.swt.events.VerifyListener;
+import org.eclipse.swt.events.VerifyEvent;
 
 public class DialogUsuarioView extends Dialog {
 
 	protected Object result;
 	protected Shell shell;
-	protected Group group;
+	protected Group grpPreenchimentoObrigatrio;
 	protected Group grpContato;
 	protected Group grpEndereo;
 	protected Composite composite;
@@ -42,6 +44,11 @@ public class DialogUsuarioView extends Dialog {
 	protected Text txtBairro;
 	protected Text txtCep;
 	protected Text txtComplemento;
+	protected Group group;
+	protected Label lblNewLabel_12;
+	protected Text txtLogin;
+	protected Label lblNewLabel_13;
+	protected Text txtSenha;
 
 	/**
 	 * Create the dialog.
@@ -78,32 +85,33 @@ public class DialogUsuarioView extends Dialog {
 		shell = new Shell(getParent(), getStyle());
 		shell.setText(getText());
 		shell.setLayout(new GridLayout());
-		group = new Group(shell, SWT.NONE);
-		GridLayout gl_group = new GridLayout(2, false);
-		gl_group.marginWidth = 10;
-		group.setLayout(gl_group);
-		GridData gd_group = new GridData(SWT.FILL, SWT.FILL, true, false, 1, 1);
-		gd_group.widthHint = 400;
-		group.setLayoutData(gd_group);
-		Label lblNewLabel = new Label(group, SWT.NONE);
+		grpPreenchimentoObrigatrio = new Group(shell, SWT.NONE);
+		grpPreenchimentoObrigatrio.setText("Preenchimento obrigat\u00f3rio");
+		GridLayout gl_grpPreenchimentoObrigatrio = new GridLayout(2, false);
+		gl_grpPreenchimentoObrigatrio.marginWidth = 10;
+		grpPreenchimentoObrigatrio.setLayout(gl_grpPreenchimentoObrigatrio);
+		GridData gd_grpPreenchimentoObrigatrio = new GridData(SWT.FILL, SWT.FILL, true, false, 1, 1);
+		gd_grpPreenchimentoObrigatrio.widthHint = 400;
+		grpPreenchimentoObrigatrio.setLayoutData(gd_grpPreenchimentoObrigatrio);
+		Label lblNewLabel = new Label(grpPreenchimentoObrigatrio, SWT.NONE);
 		lblNewLabel.setAlignment(SWT.RIGHT);
 		GridData gd_lblNewLabel = new GridData(SWT.RIGHT, SWT.CENTER, false, false, 1, 1);
 		gd_lblNewLabel.widthHint = 100;
 		lblNewLabel.setLayoutData(gd_lblNewLabel);
 		lblNewLabel.setText("Nome:");
-		txtNome = new Text(group, SWT.BORDER);
+		txtNome = new Text(grpPreenchimentoObrigatrio, SWT.BORDER);
 		txtNome.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, true, false, 1, 1));
-		Label lblNewLabel_1 = new Label(group, SWT.NONE);
+		Label lblNewLabel_1 = new Label(grpPreenchimentoObrigatrio, SWT.NONE);
 		lblNewLabel_1.setLayoutData(new GridData(SWT.RIGHT, SWT.CENTER, false, false, 1, 1));
 		lblNewLabel_1.setText("CPF:");
-		txtCpf = new Text(group, SWT.BORDER);
+		txtCpf = new Text(grpPreenchimentoObrigatrio, SWT.BORDER);
 		GridData gd_txtCpf = new GridData(SWT.LEFT, SWT.CENTER, true, false, 1, 1);
 		gd_txtCpf.widthHint = 180;
 		txtCpf.setLayoutData(gd_txtCpf);
-		Label lblNewLabel_2 = new Label(group, SWT.NONE);
+		Label lblNewLabel_2 = new Label(grpPreenchimentoObrigatrio, SWT.NONE);
 		lblNewLabel_2.setLayoutData(new GridData(SWT.RIGHT, SWT.CENTER, false, false, 1, 1));
 		lblNewLabel_2.setText("Tipo:");
-		cmbTipo = new Combo(group, SWT.READ_ONLY);
+		cmbTipo = new Combo(grpPreenchimentoObrigatrio, SWT.READ_ONLY);
 		GridData gd_cmbTipo = new GridData(SWT.LEFT, SWT.CENTER, true, false, 1, 1);
 		gd_cmbTipo.widthHint = 200;
 		cmbTipo.setLayoutData(gd_cmbTipo);
@@ -132,7 +140,7 @@ public class DialogUsuarioView extends Dialog {
 		txtEmail = new Text(grpContato, SWT.BORDER);
 		txtEmail.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, true, false, 3, 1));
 		grpEndereo = new Group(shell, SWT.NONE);
-		grpEndereo.setText("Endereço");
+		grpEndereo.setText("Endere\u00e7o");
 		GridLayout gl_grpEndereo = new GridLayout(5, false);
 		gl_grpEndereo.marginWidth = 10;
 		grpEndereo.setLayout(gl_grpEndereo);
@@ -147,7 +155,7 @@ public class DialogUsuarioView extends Dialog {
 		txtLogradouro.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, true, false, 1, 1));
 		Label lblNewLabel_8 = new Label(grpEndereo, SWT.NONE);
 		lblNewLabel_8.setLayoutData(new GridData(SWT.RIGHT, SWT.CENTER, false, false, 1, 1));
-		lblNewLabel_8.setText("Nº:");
+		lblNewLabel_8.setText("N\u00ba:");
 		txtNumero = new Text(grpEndereo, SWT.BORDER);
 		GridData gd_txtNumero = new GridData(SWT.FILL, SWT.CENTER, false, false, 2, 1);
 		gd_txtNumero.widthHint = 60;
@@ -194,6 +202,29 @@ public class DialogUsuarioView extends Dialog {
 		new Label(grpEndereo, SWT.NONE);
 		new Label(grpEndereo, SWT.NONE);
 		new Label(grpEndereo, SWT.NONE);
+		group = new Group(shell, SWT.NONE);
+		group.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, false, false, 1, 1));
+		GridLayout gl_group = new GridLayout(2, false);
+		gl_group.marginWidth = 10;
+		group.setLayout(gl_group);
+		lblNewLabel_12 = new Label(group, SWT.NONE);
+		lblNewLabel_12.setAlignment(SWT.RIGHT);
+		GridData gd_lblNewLabel_12 = new GridData(SWT.RIGHT, SWT.CENTER, false, false, 1, 1);
+		gd_lblNewLabel_12.widthHint = 100;
+		lblNewLabel_12.setLayoutData(gd_lblNewLabel_12);
+		lblNewLabel_12.setText("Login:");
+		txtLogin = new Text(group, SWT.BORDER);
+		txtLogin.addVerifyListener(new VerifyListener() {
+			public void verifyText(VerifyEvent arg0) {
+				txtLoginVerifyText(arg0);
+			}
+		});
+		txtLogin.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, true, false, 1, 1));
+		lblNewLabel_13 = new Label(group, SWT.NONE);
+		lblNewLabel_13.setLayoutData(new GridData(SWT.RIGHT, SWT.CENTER, false, false, 1, 1));
+		lblNewLabel_13.setText("Senha:");
+		txtSenha = new Text(group, SWT.BORDER | SWT.PASSWORD);
+		txtSenha.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, true, false, 1, 1));
 		composite = new Composite(shell, SWT.NONE);
 		composite.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, false, false, 1, 1));
 		composite.setLayout(new GridLayout(1, false));
@@ -213,5 +244,7 @@ public class DialogUsuarioView extends Dialog {
 	protected void btnSalvarWidgetSelected(SelectionEvent arg0) {
 	}
 	protected void txtCidadeKeyPressed(KeyEvent arg0) {
+	}
+	protected void txtLoginVerifyText(VerifyEvent arg0) {
 	}
 }

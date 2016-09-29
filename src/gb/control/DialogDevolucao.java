@@ -65,7 +65,7 @@ public class DialogDevolucao extends DialogDevolucaoView{
 			emprestimo = dao.getLastEmprestimo(exemplar);
 			txtExemplar.setText(exemplar.getNumRegistro()+" - "+exemplar.getLivro().getTitulo());
 			long diasAtraso = ChronoUnit.DAYS.between(emprestimo.getPrevisaoDevolucao(), LocalDate.now());
-			if (diasAtraso >= 0)
+			if (diasAtraso > 0)
 				multa = diasAtraso*Emprestimo.MULTA_DIA;
 			txtMulta.setText(new DecimalFormat("0.00").format(multa));
 			txtUsuario.setText(emprestimo.getUsuario().getNome());

@@ -71,14 +71,14 @@ public class DialogDetalheView extends Dialog {
 		new TableColumn(table, SWT.LEFT).setWidth(200);
 		Screen.centralize(shell, getParent());
 	}
-	
+
 	protected void addItem(String key, String value){
 		TableItem item = new TableItem(table, SWT.NONE);
 		item.setText(0, "");//filler
 		item.setText(1, key);
 		item.setText(2, value);
 	}
-	
+
 	protected void addDivisor(){
 		addItem("","");
 	}
