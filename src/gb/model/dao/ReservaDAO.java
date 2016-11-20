@@ -1,10 +1,12 @@
 package gb.model.dao;
 
 import java.sql.Connection;
+import java.sql.Date;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
+import java.sql.Timestamp;
 import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
@@ -15,7 +17,6 @@ import gb.model.Situacao;
 import gb.model.Usuario;
 import gb.model.data.ConnectionManager;
 import gb.model.exceptions.ValidationException;
-import gb.util.TemporalUtil;
 
 public class ReservaDAO {
 
@@ -63,14 +64,13 @@ public class ReservaDAO {
 	public void insert(Reserva reserva) throws ValidationException{
 		try {
 			check(reserva);
-			String sql = "INSERT INTO reserva(data_hora, data_limite, data_hora_retirada,"
-					+ " usuario_id, num_registro) VALUES(?, ?, ?, ?, ?)";
+			String sql = "INSERT INTO reserva(data_hora, data_limite,"
+					+ " usuario_id, num_registro) VALUES(?, ?, ?, ?)";
 			PreparedStatement ps = connection.prepareStatement(sql);
-			ps.setString(1, TemporalUtil.getDbDateTime(reserva.getDataHora()));
-			ps.setString(2, TemporalUtil.getDbDate(reserva.getDataLimite()));
-			ps.setString(3, TemporalUtil.getDbDateTime(reserva.getDataHoraRetirada()));
-			ps.setInt(4, reserva.getUsuario().getId());
-			ps.setInt(5, reserva.getExemplar().getNumRegistro());
+			ps.setTimestamp(1, Timestamp.valueOf(reserva.getDataHora()));
+			ps.setDate(2, Date.valueOf(reserva.getDataLimite()));
+			ps.setInt(3, reserva.getUsuario().getId());
+			ps.setInt(4, reserva.getExemplar().getNumRegistro());
 			ps.executeUpdate();
 			ps.close();
 			reserva.setId(ConnectionManager.getLastInsertId(connection));
@@ -92,9 +92,9 @@ public class ReservaDAO {
 					+ " data_hora_retirada = ?, usuario_id = ?, num_registro= ?, expirada = ?"
 					+ " WHERE reserva_id = ?";
 			PreparedStatement ps = connection.prepareStatement(sql);
-			ps.setString(1, TemporalUtil.getDbDateTime(reserva.getDataHora()));
-			ps.setString(2, TemporalUtil.getDbDate(reserva.getDataLimite()));
-			ps.setString(3, TemporalUtil.getDbDateTime(reserva.getDataHoraRetirada()));
+			ps.setTimestamp(1, Timestamp.valueOf(reserva.getDataHora()));
+			ps.setDate(2, Date.valueOf(reserva.getDataLimite()));
+			ps.setTimestamp(3, Timestamp.valueOf(reserva.getDataHoraRetirada()));
 			ps.setInt(4, reserva.getUsuario().getId());
 			ps.setInt(5, reserva.getExemplar().getNumRegistro());
 			ps.setBoolean(6, reserva.isExpirada());
@@ -183,9 +183,11 @@ public class ReservaDAO {
 	private Reserva getReserva(ResultSet result) throws SQLException{
 		Reserva reserva = new Reserva();
 		reserva.setId(result.getInt("r.reserva_id"));
-		reserva.setDataHora(TemporalUtil.getLocalDateTime(result.getString("r.data_hora")));
-		reserva.setDataLimite(TemporalUtil.getLocalDate(result.getString("r.data_limite")));
-		reserva.setDataHoraRetirada(TemporalUtil.getLocalDateTime(result.getString("r.data_hora_retirada")));
+		reserva.setDataHora(result.getTimestamp("r.data_hora").toLocalDateTime());
+		reserva.setDataLimite(result.getDate("r.data_limite").toLocalDate());
+		reserva.setDataHoraRetirada(result.getTimestamp("r.data_hora_retirada") != null ?
+				result.getTimestamp("r.data_hora_retirada").toLocalDateTime()
+				: null);
 		reserva.setExpirada(result.getBoolean("r.expirada"));
 		reserva.setUsuario(UsuarioDAO.getUsuario(result));
 		reserva.setExemplar(ExemplarDAO.getExemplar(result));
@@ -230,7 +232,7 @@ public class ReservaDAO {
 			String sql = getSelectSql("u.usuario_id = ? AND r.data_limite >= ?");
 			PreparedStatement ps = connection.prepareStatement(sql);
 			ps.setInt(1, usuario.getId());
-			ps.setString(2, TemporalUtil.getDbDate(LocalDate.now()));
+			ps.setDate(2, Date.valueOf(LocalDate.now()));
 			ResultSet result = ps.executeQuery();
 			List<Reserva> list = new ArrayList<>();
 			while (result.next())
@@ -242,12 +244,12 @@ public class ReservaDAO {
 			throw new RuntimeException(e.getMessage(), e.getCause());
 		}
 	}
-	
+
 	public List<Reserva> getListExpiradas(){
 		try {
 			String sql = getSelectSql("expirada = 0 AND r.data_limite < ?");
 			PreparedStatement ps = connection.prepareStatement(sql);
-			ps.setString(1, TemporalUtil.getDbDate(LocalDate.now()));
+			ps.setDate(1, Date.valueOf(LocalDate.now()));
 			ResultSet result = ps.executeQuery();
 			List<Reserva> list = new ArrayList<>();
 			while (result.next())
@@ -281,7 +283,7 @@ public class ReservaDAO {
 			}
 		}
 	}
-	
+
 	public Reserva getLastReserva(Exemplar exemplar){
 		try {
 			String sql = getSelectSql("e.num_registro = ? AND r.data_hora_retirada IS NULL AND r.expirada = 0");
@@ -298,13 +300,13 @@ public class ReservaDAO {
 			throw new RuntimeException(e.getMessage(), e.getCause());
 		}
 	}
-	
+
 	public List<Reserva> getList(LocalDate dataIni, LocalDate dataFim){
     	try {
             String sql = getSelectSql("data_hora >= ? AND data_hora < ?");
             PreparedStatement ps = connection.prepareStatement(sql);
-            ps.setString(1, TemporalUtil.getDbDate(dataIni));
-            ps.setString(2, TemporalUtil.getDbDate(dataFim));
+            ps.setDate(1, Date.valueOf(dataIni));
+            ps.setDate(2, Date.valueOf(dataFim));
             ResultSet result = ps.executeQuery();
             List<Reserva> list = new ArrayList<>();
             while (result.next())
@@ -320,13 +322,13 @@ public class ReservaDAO {
             throw new RuntimeException(e.getMessage(), e.getCause());
         }
     }
-    
+
     public List<Reserva> findList(LocalDate dataIni, LocalDate dataFim, String text){
     	try {
             String sql = getSelectSql("data_hora >= ? AND data_hora < ? AND UPPER(u.nome) like ?");
             PreparedStatement ps = connection.prepareStatement(sql);
-            ps.setString(1, TemporalUtil.getDbDate(dataIni));
-            ps.setString(2, TemporalUtil.getDbDate(dataFim));
+            ps.setDate(1, Date.valueOf(dataIni));
+            ps.setDate(2, Date.valueOf(dataFim));
             ps.setString(3, "%"+text.toUpperCase()+"%");
             ResultSet result = ps.executeQuery();
             List<Reserva> list = new ArrayList<>();

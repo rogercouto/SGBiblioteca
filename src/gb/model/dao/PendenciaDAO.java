@@ -4,13 +4,13 @@ import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.sql.Timestamp;
 import java.util.ArrayList;
 import java.util.List;
 
 import gb.model.Pendencia;
 import gb.model.Usuario;
 import gb.model.data.ConnectionManager;
-import gb.util.TemporalUtil;
 
 public class PendenciaDAO {
 
@@ -36,7 +36,7 @@ public class PendenciaDAO {
 			PreparedStatement ps = connection.prepareStatement(sql);
 			ps.setInt(1, pendencia.getUsuario().getId());
 			ps.setDouble(2, pendencia.getValor());
-			ps.setString(3, TemporalUtil.getDbDateTime(pendencia.getDataHoraLancamento()));
+			ps.setTimestamp(3, Timestamp.valueOf(pendencia.getDataHoraLancamento()));
 			ps.executeUpdate();
 			ps.close();
 			pendencia.setId(ConnectionManager.getLastInsertId(connection));
@@ -52,9 +52,9 @@ public class PendenciaDAO {
 			PreparedStatement ps = connection.prepareStatement(sql);
 			ps.setInt(1, pendencia.getUsuario().getId());
 			ps.setDouble(2, pendencia.getValor());
-			ps.setString(3, TemporalUtil.getDbDateTime(pendencia.getDataHoraLancamento()));
-			ps.setString(4, pendencia.getDataHoraPagamento() != null ?
-						TemporalUtil.getDbDateTime(pendencia.getDataHoraPagamento()): null
+			ps.setTimestamp(3, Timestamp.valueOf(pendencia.getDataHoraLancamento()));
+			ps.setTimestamp(4, pendencia.getDataHoraPagamento() != null ?
+					Timestamp.valueOf(pendencia.getDataHoraPagamento()): null
 					);
 			ps.setInt(5, pendencia.getId());
 			ps.executeUpdate();
@@ -88,7 +88,7 @@ public class PendenciaDAO {
 				pendencia.setId(result.getInt("pendencia_id"));
 				pendencia.setUsuario(usuario);
 				pendencia.setValor(result.getDouble("valor"));
-				pendencia.setDataHoraLancamento(TemporalUtil.getLocalDateTime(result.getString("data_hora_lancamento")));
+				pendencia.setDataHoraLancamento(result.getTimestamp("data_hora_lancamento").toLocalDateTime());
 				list.add(pendencia);
 			}
 			result.close();

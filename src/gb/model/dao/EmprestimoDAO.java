@@ -1,10 +1,12 @@
 package gb.model.dao;
 
 import java.sql.Connection;
+import java.sql.Date;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
+import java.sql.Timestamp;
 import java.time.LocalDate;
 import java.time.temporal.ChronoUnit;
 import java.util.ArrayList;
@@ -17,7 +19,6 @@ import gb.model.Usuario;
 import gb.model.data.ConnectionManager;
 import gb.model.exceptions.ValidationException;
 import gb.util.NumericUtil;
-import gb.util.TemporalUtil;
 
 public class EmprestimoDAO {
 
@@ -64,15 +65,13 @@ public class EmprestimoDAO {
     public void insert(Emprestimo emprestimo) throws ValidationException{
         try {
             check(emprestimo);
-            String sql = "INSERT INTO emprestimo(data_hora, usuario_id, num_registro, renovacoes,"
-            		+ " data_hora_devolucao, multa) VALUES(?, ?, ?, ?, ?, ?)";
+            String sql = "INSERT INTO emprestimo(data_hora, usuario_id, num_registro, renovacoes, multa) VALUES(?, ?, ?, ?, ?)";
             PreparedStatement ps = connection.prepareStatement(sql);
-            ps.setString(1, TemporalUtil.getDbDateTime(emprestimo.getDataHora()));
+            ps.setTimestamp(1, Timestamp.valueOf(emprestimo.getDataHora()));
             ps.setInt(2, emprestimo.getUsuario().getId());
             ps.setInt(3, emprestimo.getExemplar().getNumRegistro());
             ps.setInt(4, emprestimo.getNumRenovacoes());
-            ps.setString(5, TemporalUtil.getDbDateTime(emprestimo.getDataHoraDevolucao()));
-            ps.setDouble(6, emprestimo.getMulta());
+            ps.setDouble(5, emprestimo.getMulta());
             ps.executeUpdate();
             ps.close();
             emprestimo.setId(ConnectionManager.getLastInsertId(connection));
@@ -96,11 +95,11 @@ public class EmprestimoDAO {
             		+ " renovacoes = ?, data_hora_devolucao = ?, multa = ?"
             		+ " WHERE emprestimo_id = ?";
             PreparedStatement ps = connection.prepareStatement(sql);
-            ps.setString(1, TemporalUtil.getDbDateTime(emprestimo.getDataHora()));
+            ps.setTimestamp(1, Timestamp.valueOf(emprestimo.getDataHora()));
             ps.setInt(2, emprestimo.getUsuario().getId());
             ps.setInt(3, emprestimo.getExemplar().getNumRegistro());
             ps.setInt(4, emprestimo.getNumRenovacoes());
-            ps.setString(5, TemporalUtil.getDbDateTime(emprestimo.getDataHoraDevolucao()));
+            ps.setTimestamp(5, emprestimo.getDataHoraDevolucao() != null ? Timestamp.valueOf(emprestimo.getDataHoraDevolucao()):null);
             ps.setDouble(6, emprestimo.getMulta());
             ps.setInt(7, emprestimo.getId());
             ps.executeUpdate();
@@ -155,7 +154,7 @@ public class EmprestimoDAO {
             	throw new RuntimeException("Data/Hora da devolu\u00e7\u00e3o n\u00e3o pode ser null!");
             String sql = "UPDATE emprestimo SET data_hora_devolucao = ? WHERE emprestimo_id = ?";
             PreparedStatement ps = connection.prepareStatement(sql);
-            ps.setString(1, TemporalUtil.getDbDateTime(emprestimo.getDataHoraDevolucao()));
+            ps.setTimestamp(1, Timestamp.valueOf(emprestimo.getDataHoraDevolucao()));
             ps.setInt(2, emprestimo.getId());
             ps.executeUpdate();
             ps.close();
@@ -192,9 +191,10 @@ public class EmprestimoDAO {
     private Emprestimo getEmprestimo(ResultSet result) throws SQLException{
         Emprestimo emprestimo = new Emprestimo();
         emprestimo.setId(result.getInt("em.emprestimo_id"));
-        emprestimo.setDataHora(TemporalUtil.getLocalDateTime(result.getString("em.data_hora")));
-        emprestimo.setDataHoraDevolucao(
-        		TemporalUtil.getLocalDateTime(result.getString("em.data_hora_devolucao"))
+        emprestimo.setDataHora(result.getTimestamp("em.data_hora").toLocalDateTime());
+        emprestimo.setDataHoraDevolucao(result.getTimestamp("em.data_hora_devolucao") != null ?
+        			result.getTimestamp("em.data_hora_devolucao").toLocalDateTime() :
+        			null
         		);
         emprestimo.setMulta(result.getDouble("em.multa"));
         emprestimo.setUsuario(UsuarioDAO.getUsuario(result));
@@ -303,8 +303,8 @@ public class EmprestimoDAO {
     	try {
             String sql = getSelectSql("data_hora >= ? AND data_hora < ?");
             PreparedStatement ps = connection.prepareStatement(sql);
-            ps.setString(1, TemporalUtil.getDbDate(dataIni));
-            ps.setString(2, TemporalUtil.getDbDate(dataFim));
+            ps.setDate(1, Date.valueOf(dataIni));
+            ps.setDate(2, Date.valueOf(dataFim));
             ResultSet result = ps.executeQuery();
             List<Emprestimo> list = new ArrayList<>();
             while (result.next())
@@ -325,8 +325,8 @@ public class EmprestimoDAO {
     	try {
             String sql = getSelectSql("data_hora >= ? AND data_hora < ? AND UPPER(u.nome) like ?");
             PreparedStatement ps = connection.prepareStatement(sql);
-            ps.setString(1, TemporalUtil.getDbDate(dataIni));
-            ps.setString(2, TemporalUtil.getDbDate(dataFim));
+            ps.setDate(1, Date.valueOf(dataIni));
+            ps.setDate(2, Date.valueOf(dataFim));
             ps.setString(3, "%"+text.toUpperCase()+"%");
             ResultSet result = ps.executeQuery();
             List<Emprestimo> list = new ArrayList<>();

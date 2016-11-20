@@ -11,7 +11,7 @@ public class Exemplar {
 	private Origem origem;
 	private boolean fixo = false;
 	private Situacao situacao;
-	
+
 	public Exemplar() {
 		super();
 	}
@@ -84,7 +84,7 @@ public class Exemplar {
 		else
 			throw new RuntimeException("Livro não pode ser reservado!");
 	}
-	
+
 	public Situacao getSituacao() {
 		return situacao;
 	}

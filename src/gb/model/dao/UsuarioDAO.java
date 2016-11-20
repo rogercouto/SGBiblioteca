@@ -159,7 +159,7 @@ public class UsuarioDAO {
 	public void delete(Usuario usuario) throws ValidationException{
 		try {
 			if (usuario.getId() == null)
-				throw new RuntimeException("Falta id do usu\u00e1rio a ser atualizado!");
+				throw new RuntimeException("Falta id do usu\u00e1rio a ser removido!");
 			checkUse(usuario);
 			Integer idEndereco = null;
 			if (usuario.getEndereco() != null)
